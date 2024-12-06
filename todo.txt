@@ -32,3 +32,14 @@ Word에서 "파일 > 열기 > 찾아보기"로 이동한 후, 문제의 파일�
 
 
 C:/Users/axis1/OneDrive/Documents/거래처/금정국민체육센터/유지보수청구서_template.docx
+
+
+variable.json 파일
+- WORK_ : 작업 연월일(유지보수)
+- BILLING_ : 청구, 완료 연월일
+- CHECK_ : 점검 연월일
+- MSG_ : 메시지
+- DOC_NUM : 공문번호, 한마음용
+- START_ : 시작 연월일
+- END_ : 종료 연월일, 서울곰, 송도
+- 서울 곰두리는 추가적인 정보를 기입해야함

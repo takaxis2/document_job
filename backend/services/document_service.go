@@ -301,18 +301,11 @@ func (ds *DocumentService) processFile(filePath string, newFilePath string, repl
 	}
 }
 
-// processExcelFile 함수는 Excel 파일을 처리합니다.
-func processExcelFile(filePath string) error {
-	// Excel 파일 처리 로직 구현
-	fmt.Printf("Excel 파일 처리: %s\n", filePath)
-	return nil
-}
-
 func (ds *DocumentService) ProcessExcelDocument(templatPath, newFilePath string, replacements map[string]string) error {
 	//원본 템플릿 문서 열기
 	f, err := excelize.OpenFile(templatPath)
 	if err != nil {
-		return fmt.Errorf("Excel 파일 열기 오류 : %v", err)
+		return fmt.Errorf("excel 파일 열기 오류 : %v", err)
 	}
 
 	defer func() {
@@ -338,6 +331,9 @@ func (ds *DocumentService) ProcessExcelDocument(templatPath, newFilePath string,
 				newValue := re.ReplaceAllStringFunc(cellValue, func(match string) string {
 					key := strings.Trim(match, "{}")
 					if value, ok := replacements[key]; ok {
+						if len(value) == 1 {
+							value = "0" + value
+						}
 						return value
 					}
 					return match
@@ -358,8 +354,14 @@ func (ds *DocumentService) ProcessExcelDocument(templatPath, newFilePath string,
 		}
 	}
 
+	newFileName, err := ds.processFileName(newFilePath, replacements)
+	if err != nil {
+		//에러 발생시 _template 파일명을 사용
+		newFileName = newFilePath
+	}
+
 	//새 파일로 저장
-	if err := f.SaveAs(newFilePath); err != nil {
+	if err := f.SaveAs(newFileName); err != nil {
 		return fmt.Errorf("수정된 Excel 파일 저장 오류 : %v", err)
 	}
 
@@ -378,26 +380,43 @@ func (ds *DocumentService) ProcessWordDocument(templatePath, newFilePath string,
 	//편집가능한 문서 생성
 	doc := r.Editable()
 
-	//{{}} 형식의 플레이스 홀더를 찾기위한 정규식
-	re := regexp.MustCompile(`{{([^{}]+)}}`)
-
 	//문서 내용 가져오기
 	content := doc.GetContent()
+
+	//{{}} 형식의 플레이스 홀더를 찾기위한 정규식
+	re := regexp.MustCompile(`{{([^{}]+)}}`)
 
 	//모든 플레이스홀더를 찾기 및 대체
 	content = re.ReplaceAllStringFunc(content, func(match string) string {
 		key := strings.Trim(match, "{}")
 		if value, ok := replacements[key]; ok {
+			if len(value) == 1 {
+				value = "0" + value
+			}
 			return value
 		}
 		return match
 	})
 
+	// // XML 태그를 보존하면서 내용 대체
+	// for key, value := range replacements {
+	// 	placeholder := fmt.Sprintf("{{%s}}", key)
+	// 	re := regexp.MustCompile(fmt.Sprintf(`(<w:t[^>]*>.*?)%s(.*?</w:t>)`, regexp.QuoteMeta(placeholder)))
+	// 	// content = strings.ReplaceAll(content, placeholder, value)
+	// 	content = re.ReplaceAllString(content, fmt.Sprintf(`${1}%s${2}`, value))
+	// }
+
 	//대체된 내용을 문서에 저장
 	doc.SetContent(content)
 
+	newFileName, err := ds.processFileName(newFilePath, replacements)
+	if err != nil {
+		//에러 발생시 _template이 들어간 파일명 사용
+		newFileName = newFilePath
+	}
+
 	//새파일로 저장
-	err = doc.WriteToFile(newFilePath)
+	err = doc.WriteToFile(newFileName)
 	if err != nil {
 		return err
 	}
@@ -450,6 +469,41 @@ func ProcessTemplate[T any](templatePath, newFilePath string, replacements map[s
 	}
 
 	return nil
+}
+
+func (ds *DocumentService) processFileName(file_path string, replacements map[string]string) (string, error) {
+	// 파일명과 확장자 분리
+	dir := filepath.Dir(file_path)
+	filename := filepath.Base(file_path)
+	ext := filepath.Ext(filename)
+	name := strings.TrimSuffix(filename, ext)
+
+	// '_template'이 포함된 파일명인지 확인
+	if !strings.Contains(name, "_template") {
+		return "", fmt.Errorf("파일명에 '_template'이 포함되어 있지 않습니다")
+	}
+
+	// replacements에서 연도와 월 가져오기
+	year, exists := replacements["WORK_YEAR"]
+	if !exists {
+		return "", fmt.Errorf("WORK_YEAR가 replacements에 없습니다")
+	}
+
+	month, exists := replacements["WORK_MONTH"]
+	if !exists {
+		return "", fmt.Errorf("WORK_MONTH가 replacements에 없습니다")
+	}
+
+	// 월이 한 자리수인 경우 두 자리로 변환 (예: "3" -> "03")
+	if len(month) == 1 {
+		month = "0" + month
+	}
+
+	// 새 파일명 생성 (_template을 _YYYYMM으로 대체)
+	newFilename := strings.Replace(name, "_template", fmt.Sprintf("_%s%s", year, month), 1)
+	newPath := filepath.Join(dir, newFilename+ext)
+
+	return newPath, nil
 }
 
 func (ds *DocumentService) OpenFile(path string) error {

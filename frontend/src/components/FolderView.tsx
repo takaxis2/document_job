@@ -14,7 +14,7 @@ export default function FolderView() {
     useEffect(() => {
 
         // ReadFolderAndDocument("C:/Users/axis1/OneDrive/바탕 화면/docs/monthly-docs-react/test_template")
-        ReadFolderAndDocument("C:/Users/axis1/OneDrive/Documents/거래처")
+        ReadFolderAndDocument("C:/Users/SAMSUNG/Desktop/document_job/거래처")
             .then(folders => {
                 setFiles(folders)
                 // LogPrint(`${JSON.stringify(folders)}`)

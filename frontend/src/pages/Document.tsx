@@ -23,17 +23,20 @@ import { ReplyAll } from "lucide-react"
 export default function Document() {
 
     const [templatePath, setTemplatePath] = useState('');
-    const [newFilePath, setNewFilePath] = useState('C:/Users/axis1/OneDrive/바탕 화면/docs/monthly-docs-react-ts/destination');
+    const [newFilePath, setNewFilePath] = useState('C:/Users/SAMSUNG/Desktop/document_job/destination');
     const [replacements, setReplacements] = useState({
-        "WORK_YEAR" : "2025",
-        "WORK_MONTH": "19",
-        "WORK_DATE": "113",
+        "WORK_YEAR" : "2024",
+        "WORK_MONTH": "12",
+        "WORK_DATE": "18",
         "END_YEAR" : "2055",
         "END_MONTH" : "29",
         "END_DATE": "223",
-        "BILLING_YEAR" : "2066",
-        "BILLING_MONTH" :"39",
-        "BILLING_DATE" : "333"
+        "BILLING_YEAR" : "2024",
+        "BILLING_MONTH" :"12",
+        "BILLING_DATE" : "20",
+        "CHECK_YEAR" : "2024",
+        "CHECK_MONTH" : "12",
+        "CHECK_DATE" : "18"
     });
 
     const { selectedFiles } = useFileStore();
