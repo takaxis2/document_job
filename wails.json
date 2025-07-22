@@ -1,13 +1,13 @@
 {
   "$schema": "https://wails.io/schemas/config.v2.json",
-  "name": "monthly-docs-react-ts",
-  "outputfilename": "monthly-docs-react-ts",
+  "name": "doc_job",
+  "outputfilename": "doc_job",
   "frontend:install": "npm install",
   "frontend:build": "npm run build",
   "frontend:dev:watcher": "npm run dev",
   "frontend:dev:serverUrl": "auto",
   "author": {
-    "name": "",
-    "email": ""
+    "name": "takaxis2",
+    "email": "axis1130@gmail.com"
   }
 }
