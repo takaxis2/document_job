@@ -1,9 +1,23 @@
+import { useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card"
-import { Input } from "../components/ui/input"
 import { Button } from "../components/ui/button"
 import DocumentTree from "../components/document-tree"
+import { SelectDirectory } from "../../wailsjs/go/document/Document"
 
 export default function DocumentsPage() {
+  const [folderPath, setFolderPath] = useState("");
+
+  const handleSelectDirectory = async () => {
+    try {
+      const selectedPath = await SelectDirectory();
+      if (selectedPath) {
+        setFolderPath(selectedPath);
+      }
+    } catch (error) {
+      console.error("폴더 선택 중 오류 발생:", error);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div>
@@ -20,8 +34,14 @@ export default function DocumentsPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              <Input placeholder="예: C:/Documents" defaultValue="/documents" />
-              <Button className="w-full">경로 불러오기</Button>
+              <Button className="w-full" onClick={handleSelectDirectory}>
+                폴더 선택
+              </Button>
+              {folderPath && (
+                <p className="text-sm text-muted-foreground">
+                  선택된 경로: {folderPath}
+                </p>
+              )}
             </div>
           </CardContent>
         </Card>
