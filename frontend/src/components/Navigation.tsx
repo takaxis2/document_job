@@ -1,7 +1,7 @@
 import { Link, useLocation } from "react-router"
 import { Button } from "./ui/button"
-import { Input } from "./ui/input"
-import { Search, Filter, BarChart3, Users, FileText } from "lucide-react"
+// import { Input } from "./ui/input"
+import { BarChart3, Users, FileText } from "lucide-react"
 import { cn } from "../lib/utils"
 
 const navigationItems = [
@@ -57,7 +57,7 @@ export default function Navigation() {
             </nav>
           </div>
 
-          <div className="flex items-center space-x-2">
+          {/* <div className="flex items-center space-x-2">
             <div className="relative">
               <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input placeholder="검색..." className="w-[250px] pl-8" type="search" />
@@ -65,7 +65,7 @@ export default function Navigation() {
             <Button variant="outline" size="icon">
               <Filter className="h-4 w-4" />
             </Button>
-          </div>
+          </div> */}
         </div>
       </div>
     </header>

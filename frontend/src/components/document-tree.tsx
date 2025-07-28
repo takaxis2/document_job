@@ -133,9 +133,9 @@ interface FileSystemItem {
   type: "file" | "folder"
   children?: FileSystemItem[]
   path: string
-  size?: string
-  modified?: string
-  isTemplate?: boolean
+  size?: string // 굳이 필요한가?
+  modified?: string // 굳이 필요한가?
+  isTemplate?: boolean // 굳이 필요한가?
 }
 
 // 예시 데이터 - 실제로는 API 호출로 대체될 수 있음
@@ -731,7 +731,7 @@ const StringReplacementPanel = ({
 
   return (
     <div className="p-4 h-full overflow-auto">
-      <div className="flex justify-between items-center mb-4">
+      <div className="justify-between items-center mb-4">
         <h3 className="font-medium">문자열 치환</h3>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={() => setIsPresetModalOpen(true)}>
@@ -1047,7 +1047,7 @@ export default function DocumentTree() {
         />
 
         {/* 파일 탐색기 */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 h-[400px]">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 min-h-[400px]">
           <div className="md:col-span-2 border rounded-md overflow-auto">
             <div className="p-2">
               {filteredFileSystem.length > 0 ? (
