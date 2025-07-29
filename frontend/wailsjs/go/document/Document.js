@@ -5,3 +5,7 @@
 export function SelectDirectory() {
   return window['go']['document']['Document']['SelectDirectory']();
 }
+
+export function Startup(arg1) {
+  return window['go']['document']['Document']['Startup'](arg1);
+}

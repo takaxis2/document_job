@@ -1,22 +1,35 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card"
+// import { Badge } from "@/components/ui/badge"
 import { Button } from "../components/ui/button"
 import DocumentTree from "../components/document-tree"
-import { SelectDirectory } from "../../wailsjs/go/document/Document"
+// import { useToast } from "@/hooks/use-toast"
+import FolderPathModal from "@/components/folder-path-modal"
 
 export default function DocumentsPage() {
-  const [folderPath, setFolderPath] = useState("");
+  const [folderPath, setFolderPath] = useState<string | null>(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  // const { toast } = useToast()
 
-  const handleSelectDirectory = async () => {
-    try {
-      const selectedPath = await SelectDirectory();
-      if (selectedPath) {
-        setFolderPath(selectedPath);
-      }
-    } catch (error) {
-      console.error("폴더 선택 중 오류 발생:", error);
+  useEffect(() => {
+    const savedPath = localStorage.getItem("documentFolderPath")
+    if (savedPath) {
+      setFolderPath(savedPath)
+    } else {
+      setIsModalOpen(true) // 경로가 없으면 모달 열기
     }
-  };
+  }, [])
+
+  const handleSavePath = (path: string) => {
+    setFolderPath(path)
+    localStorage.setItem("documentFolderPath", path)
+    setIsModalOpen(false)
+  }
+
+  const handleChangeFolder = () => {
+    setIsModalOpen(true)
+  }
+
 
   return (
     <div className="space-y-6">
@@ -25,38 +38,46 @@ export default function DocumentsPage() {
         <p className="text-muted-foreground">문서를 관리하고 템플릿 변수를 치환하세요.</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        {/* 폴더 경로 입력 및 설정 */}
-        <Card className="md:col-span-1">
+      {folderPath ? (
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          {/* 폴더 트리 및 파일 목록 */}
+          <Card className="md:col-span-4">
+            <CardHeader>
+              <div className="flex justify-between">
+                <div>
+                  <CardTitle>문서 트리</CardTitle>
+                  <CardDescription>{folderPath}</CardDescription>
+                </div>
+                <Button className="" onClick={handleChangeFolder}>
+                  폴더 변경
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <DocumentTree />
+            </CardContent>
+          </Card>
+        </div>
+      ) : (
+        <Card className="w-full max-w-md mx-auto text-center py-8">
           <CardHeader>
-            <CardTitle>폴더 경로</CardTitle>
-            <CardDescription>문서를 표시할 폴더 경로를 입력하세요</CardDescription>
+            <CardTitle>폴더 경로가 설정되지 않았습니다</CardTitle>
+            <CardDescription>문서 트리를 보려면 폴더 경로를 설정해야 합니다.</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-2">
-              <Button className="w-full" onClick={handleSelectDirectory}>
-                폴더 선택
-              </Button>
-              {folderPath && (
-                <p className="text-sm text-muted-foreground">
-                  선택된 경로: {folderPath}
-                </p>
-              )}
-            </div>
+            <Button onClick={() => setIsModalOpen(true)}>폴더 경로 설정</Button>
           </CardContent>
         </Card>
+      )}
 
-        {/* 폴더 트리 및 파일 목록 */}
-        <Card className="md:col-span-3">
-          <CardHeader>
-            <CardTitle>문서 트리</CardTitle>
-            <CardDescription>폴더 구조와 문서 목록</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <DocumentTree />
-          </CardContent>
-        </Card>
-      </div>
+      
+      <FolderPathModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)} // Allow closing
+        onSavePath={handleSavePath}
+        initialPath={folderPath || ""}
+      />
+
     </div>
   )
 }
