@@ -24,6 +24,7 @@ export default function DocumentsPage() {
     setFolderPath(path)
     localStorage.setItem("documentFolderPath", path)
     setIsModalOpen(false)
+    // 이 시점에 폴더트리 탐색을 시작해야 한다.
   }
 
   const handleChangeFolder = () => {
