@@ -1,13 +1,14 @@
 package main
 
 import (
+	"context"
 	"embed"
+
+	"doc_job/document"
 
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
-
-	"doc_job/document"
 )
 
 //go:embed all:frontend/dist
@@ -16,7 +17,7 @@ var assets embed.FS
 func main() {
 	// Create an instance of the app structure
 	app := NewApp()
-	document := document.NewDocument()
+	doc := document.NewDocument()
 
 	// Create application with options
 	err := wails.Run(&options.App{
@@ -27,9 +28,12 @@ func main() {
 			Assets: assets,
 		},
 		BackgroundColour: &options.RGBA{R: 27, G: 38, B: 54, A: 1},
-		OnStartup:        app.startup,
+		OnStartup: func(ctx context.Context) {
+			doc.Startup(ctx)
+			app.startup(ctx)
+		},
 		Bind: []interface{}{
-			app, document,
+			app, doc,
 		},
 	})
 

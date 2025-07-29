@@ -6,7 +6,7 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
-func SelectDirectory(ctx context.Context) (string, error) {
+func selectDirectory(ctx context.Context) (string, error) {
 	result, err := runtime.OpenDirectoryDialog(ctx, runtime.OpenDialogOptions{
 		Title: "폴더 선택",
 	})
@@ -14,4 +14,8 @@ func SelectDirectory(ctx context.Context) (string, error) {
 		return "", err
 	}
 	return result, nil
+}
+
+func getFolderTree(path string) {
+
 }
