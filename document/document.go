@@ -11,7 +11,11 @@ type Document struct {
 }
 
 func NewDocument() *Document {
-	return &Document{ctx: context.Background()}
+	return &Document{}
+}
+
+func (d *Document) startup(ctx context.Context) {
+	d.ctx = ctx
 }
 
 // 폴더 선택 다이얼로그 함수 - 컨텍스트를 직접 받음
