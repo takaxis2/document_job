@@ -5,6 +5,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import type React from "react"
 
 import { useState, useEffect } from "react"
+// import { SelectDirectory } from "../../wailsjs/go/document/Document"
 import {
   ChevronRight,
   ChevronDown,
@@ -130,7 +131,7 @@ const getFileIcon = (filename: string) => {
 interface FileSystemItem {
   id: string
   name: string
-  type: "file" | "folder"
+  fileType: "file" | "folder"
   children?: FileSystemItem[]
   path: string
   size?: string // 굳이 필요한가?
@@ -143,19 +144,19 @@ const sampleFileSystem: FileSystemItem[] = [
   {
     id: "1",
     name: "계약서",
-    type: "folder",
+    fileType: "folder",
     path: "/documents/contracts",
     children: [
       {
         id: "1-1",
         name: "2025년 계약",
-        type: "folder",
+        fileType: "folder",
         path: "/documents/contracts/2025",
         children: [
           {
             id: "1-1-1",
             name: "한국전자_공급계약서.pdf",
-            type: "file",
+            fileType: "file",
             path: "/documents/contracts/2025/한국전자_공급계약서.pdf",
             size: "2.4 MB",
             modified: "2025-05-03",
@@ -163,7 +164,7 @@ const sampleFileSystem: FileSystemItem[] = [
           {
             id: "1-1-2",
             name: "대한물산_유지보수계약.docx",
-            type: "file",
+            fileType: "file",
             path: "/documents/contracts/2025/대한물산_유지보수계약.docx",
             size: "1.8 MB",
             modified: "2025-05-02",
@@ -173,13 +174,13 @@ const sampleFileSystem: FileSystemItem[] = [
       {
         id: "1-2",
         name: "2024년 계약",
-        type: "folder",
+        fileType: "folder",
         path: "/documents/contracts/2024",
         children: [
           {
             id: "1-2-1",
             name: "성원기업_서비스계약.pdf",
-            type: "file",
+            fileType: "file",
             path: "/documents/contracts/2024/성원기업_서비스계약.pdf",
             size: "3.1 MB",
             modified: "2024-12-15",
@@ -191,13 +192,13 @@ const sampleFileSystem: FileSystemItem[] = [
   {
     id: "2",
     name: "견적서",
-    type: "folder",
+    fileType: "folder",
     path: "/documents/quotes",
     children: [
       {
         id: "2-1",
         name: "한국전자_5월납품견적.xlsx",
-        type: "file",
+        fileType: "file",
         path: "/documents/quotes/한국전자_5월납품견적.xlsx",
         size: "1.2 MB",
         modified: "2025-05-01",
@@ -205,7 +206,7 @@ const sampleFileSystem: FileSystemItem[] = [
       {
         id: "2-2",
         name: "대한물산_서비스견적.pdf",
-        type: "file",
+        fileType: "file",
         path: "/documents/quotes/대한물산_서비스견적.pdf",
         size: "0.8 MB",
         modified: "2025-04-28",
@@ -215,19 +216,19 @@ const sampleFileSystem: FileSystemItem[] = [
   {
     id: "3",
     name: "인보이스",
-    type: "folder",
+    fileType: "folder",
     path: "/documents/invoices",
     children: [
       {
         id: "3-1",
         name: "4월 인보이스",
-        type: "folder",
+        fileType: "folder",
         path: "/documents/invoices/april",
         children: [
           {
             id: "3-1-1",
             name: "한국전자_4월인보이스.pdf",
-            type: "file",
+            fileType: "file",
             path: "/documents/invoices/april/한국전자_4월인보이스.pdf",
             size: "0.7 MB",
             modified: "2025-04-30",
@@ -235,7 +236,7 @@ const sampleFileSystem: FileSystemItem[] = [
           {
             id: "3-1-2",
             name: "대한물산_4월인보이스.pdf",
-            type: "file",
+            fileType: "file",
             path: "/documents/invoices/april/대한물산_4월인보이스.pdf",
             size: "0.6 MB",
             modified: "2025-04-30",
@@ -245,13 +246,13 @@ const sampleFileSystem: FileSystemItem[] = [
       {
         id: "3-2",
         name: "3월 인보이스",
-        type: "folder",
+        fileType: "folder",
         path: "/documents/invoices/march",
         children: [
           {
             id: "3-2-1",
             name: "한국전자_3월인보이스.pdf",
-            type: "file",
+            fileType: "file",
             path: "/documents/invoices/march/한국전자_3월인보이스.pdf",
             size: "0.7 MB",
             modified: "2025-03-31",
@@ -263,13 +264,13 @@ const sampleFileSystem: FileSystemItem[] = [
   {
     id: "4",
     name: "템플릿",
-    type: "folder",
+    fileType: "folder",
     path: "/documents/templates",
     children: [
       {
         id: "4-1",
         name: "계약서_템플릿.docx",
-        type: "file",
+        fileType: "file",
         path: "/documents/templates/계약서_템플릿.docx",
         size: "0.5 MB",
         modified: "2025-01-15",
@@ -278,7 +279,7 @@ const sampleFileSystem: FileSystemItem[] = [
       {
         id: "4-2",
         name: "견적서_템플릿.xlsx",
-        type: "file",
+        fileType: "file",
         path: "/documents/templates/견적서_템플릿.xlsx",
         size: "0.4 MB",
         modified: "2025-01-15",
@@ -287,7 +288,7 @@ const sampleFileSystem: FileSystemItem[] = [
       {
         id: "4-3",
         name: "인보이스_템플릿.docx",
-        type: "file",
+        fileType: "file",
         path: "/documents/templates/인보이스_템플릿.docx",
         size: "0.3 MB",
         modified: "2025-01-15",
@@ -325,7 +326,7 @@ const TreeItem = ({
   const isSelected = selectedItems.has(item.id)
 
   const handleItemClick = (e: React.MouseEvent) => {
-    if (item.type === "folder") {
+    if (item.fileType === "folder") {
       toggleExpand(item.id)
     }
 
@@ -334,11 +335,11 @@ const TreeItem = ({
     // Shift 키를 누른 상태에서 클릭하면 범위 선택
     const rangeSelect = e.shiftKey
 
-    if (rangeSelect && lastClickedItem && item.type === "file") {
+    if (rangeSelect && lastClickedItem && item.fileType === "file") {
       selectRange(lastClickedItem, item.id)
     } else {
       toggleSelectItem(item.id, multiSelect, rangeSelect)
-      if (item.type === "file") {
+      if (item.fileType === "file") {
         setLastClickedItem(item.id)
       }
     }
@@ -347,7 +348,7 @@ const TreeItem = ({
   const handleCheckboxChange = (e: React.MouseEvent) => {
     e.stopPropagation()
     toggleSelectItem(item.id, true, false)
-    if (item.type === "file") {
+    if (item.fileType === "file") {
       setLastClickedItem(item.id)
     }
   }
@@ -367,13 +368,13 @@ const TreeItem = ({
         style={{ paddingLeft: `${level * 16 + 8}px` }}
         onClick={handleItemClick}
       >
-        {item.type === "file" && (
+        {item.fileType === "file" && (
           <div className="mr-2" onClick={handleCheckboxChange}>
             <Checkbox checked={isSelected} />
           </div>
         )}
 
-        {item.type === "folder" && (
+        {item.fileType === "folder" && (
           <div className="mr-1">
             {isExpanded ? (
               <ChevronDown className="h-4 w-4 text-gray-500" />
@@ -384,7 +385,7 @@ const TreeItem = ({
         )}
 
         <div className="mr-2">
-          {item.type === "folder" ? (
+          {item.fileType === "folder" ? (
             isExpanded ? (
               <FolderOpen className="h-4 w-4 text-yellow-500" />
             ) : (
@@ -410,7 +411,7 @@ const TreeItem = ({
         )}
       </div>
 
-      {item.type === "folder" && isExpanded && item.children && (
+      {item.fileType === "folder" && isExpanded && item.children && (
         <div>
           {item.children.map((child) => (
             <TreeItem
@@ -887,7 +888,7 @@ export default function DocumentTree() {
     let files: FileSystemItem[] = []
 
     for (const item of items) {
-      if (item.type === "file") {
+      if (item.fileType === "file") {
         files.push(item)
       }
 
@@ -922,7 +923,7 @@ export default function DocumentTree() {
     const item = findItemById(sampleFileSystem, id)
 
     // 폴더는 선택하지 않음
-    if (item?.type === "folder") {
+    if (item?.fileType === "folder") {
       return
     }
 
@@ -931,14 +932,14 @@ export default function DocumentTree() {
     if (!multiSelect && !rangeSelect) {
       // 일반 클릭: 기존 선택 해제하고 새로 선택
       newSelectedItems.clear()
-      if (item?.type === "file") {
+      if (item?.fileType === "file") {
         newSelectedItems.add(id)
       }
     } else {
       // 다중 선택: 토글
       if (newSelectedItems.has(id)) {
         newSelectedItems.delete(id)
-      } else if (item?.type === "file") {
+      } else if (item?.fileType === "file") {
         newSelectedItems.add(id)
       }
     }

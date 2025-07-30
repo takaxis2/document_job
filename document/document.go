@@ -22,5 +22,6 @@ func (d *Document) SelectDirectory() (string, error) {
 }
 
 // 폴더 트리 가져오기 함수
-func (d *Document) GetFolderTree(path string) {
+func (d *Document) GetFolderTree(path string) ([]FileSystemItem, error) {
+	return getFolderTree(path)
 }

@@ -2,7 +2,7 @@ import { Routes, Route } from "react-router"
 import Layout from "./components/Layout"
 import DashboardPage from "./pages/DashboardPage"
 import PartnersPage from "./pages/PartnersPage"
-import DocumentsPage from "./pages/Documentspage"
+import DocumentsPage from "./pages/DocumentsPage"
 import { Toaster } from "./components/ui/sonner"
 
 function App() {
