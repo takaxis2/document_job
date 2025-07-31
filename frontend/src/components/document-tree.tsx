@@ -141,163 +141,163 @@ interface FileSystemItem {
 }
 
 // 예시 데이터 - 실제로는 API 호출로 대체될 수 있음
-const sampleFileSystem: FileSystemItem[] = [
-  {
-    id: "1",
-    name: "계약서",
-    fileType: "folder",
-    path: "/documents/contracts",
-    children: [
-      {
-        id: "1-1",
-        name: "2025년 계약",
-        fileType: "folder",
-        path: "/documents/contracts/2025",
-        children: [
-          {
-            id: "1-1-1",
-            name: "한국전자_공급계약서.pdf",
-            fileType: "file",
-            path: "/documents/contracts/2025/한국전자_공급계약서.pdf",
-            size: "2.4 MB",
-            modified: "2025-05-03",
-          },
-          {
-            id: "1-1-2",
-            name: "대한물산_유지보수계약.docx",
-            fileType: "file",
-            path: "/documents/contracts/2025/대한물산_유지보수계약.docx",
-            size: "1.8 MB",
-            modified: "2025-05-02",
-          },
-        ],
-      },
-      {
-        id: "1-2",
-        name: "2024년 계약",
-        fileType: "folder",
-        path: "/documents/contracts/2024",
-        children: [
-          {
-            id: "1-2-1",
-            name: "성원기업_서비스계약.pdf",
-            fileType: "file",
-            path: "/documents/contracts/2024/성원기업_서비스계약.pdf",
-            size: "3.1 MB",
-            modified: "2024-12-15",
-          },
-        ],
-      },
-    ],
-  },
-  {
-    id: "2",
-    name: "견적서",
-    fileType: "folder",
-    path: "/documents/quotes",
-    children: [
-      {
-        id: "2-1",
-        name: "한국전자_5월납품견적.xlsx",
-        fileType: "file",
-        path: "/documents/quotes/한국전자_5월납품견적.xlsx",
-        size: "1.2 MB",
-        modified: "2025-05-01",
-      },
-      {
-        id: "2-2",
-        name: "대한물산_서비스견적.pdf",
-        fileType: "file",
-        path: "/documents/quotes/대한물산_서비스견적.pdf",
-        size: "0.8 MB",
-        modified: "2025-04-28",
-      },
-    ],
-  },
-  {
-    id: "3",
-    name: "인보이스",
-    fileType: "folder",
-    path: "/documents/invoices",
-    children: [
-      {
-        id: "3-1",
-        name: "4월 인보이스",
-        fileType: "folder",
-        path: "/documents/invoices/april",
-        children: [
-          {
-            id: "3-1-1",
-            name: "한국전자_4월인보이스.pdf",
-            fileType: "file",
-            path: "/documents/invoices/april/한국전자_4월인보이스.pdf",
-            size: "0.7 MB",
-            modified: "2025-04-30",
-          },
-          {
-            id: "3-1-2",
-            name: "대한물산_4월인보이스.pdf",
-            fileType: "file",
-            path: "/documents/invoices/april/대한물산_4월인보이스.pdf",
-            size: "0.6 MB",
-            modified: "2025-04-30",
-          },
-        ],
-      },
-      {
-        id: "3-2",
-        name: "3월 인보이스",
-        fileType: "folder",
-        path: "/documents/invoices/march",
-        children: [
-          {
-            id: "3-2-1",
-            name: "한국전자_3월인보이스.pdf",
-            fileType: "file",
-            path: "/documents/invoices/march/한국전자_3월인보이스.pdf",
-            size: "0.7 MB",
-            modified: "2025-03-31",
-          },
-        ],
-      },
-    ],
-  },
-  {
-    id: "4",
-    name: "템플릿",
-    fileType: "folder",
-    path: "/documents/templates",
-    children: [
-      {
-        id: "4-1",
-        name: "계약서_템플릿.docx",
-        fileType: "file",
-        path: "/documents/templates/계약서_템플릿.docx",
-        size: "0.5 MB",
-        modified: "2025-01-15",
-        isTemplate: true,
-      },
-      {
-        id: "4-2",
-        name: "견적서_템플릿.xlsx",
-        fileType: "file",
-        path: "/documents/templates/견적서_템플릿.xlsx",
-        size: "0.4 MB",
-        modified: "2025-01-15",
-        isTemplate: true,
-      },
-      {
-        id: "4-3",
-        name: "인보이스_템플릿.docx",
-        fileType: "file",
-        path: "/documents/templates/인보이스_템플릿.docx",
-        size: "0.3 MB",
-        modified: "2025-01-15",
-        isTemplate: true,
-      },
-    ],
-  },
-]
+// const sampleFileSystem: FileSystemItem[] = [
+//   {
+//     id: "1",
+//     name: "계약서",
+//     fileType: "folder",
+//     path: "/documents/contracts",
+//     children: [
+//       {
+//         id: "1-1",
+//         name: "2025년 계약",
+//         fileType: "folder",
+//         path: "/documents/contracts/2025",
+//         children: [
+//           {
+//             id: "1-1-1",
+//             name: "한국전자_공급계약서.pdf",
+//             fileType: "file",
+//             path: "/documents/contracts/2025/한국전자_공급계약서.pdf",
+//             size: "2.4 MB",
+//             modified: "2025-05-03",
+//           },
+//           {
+//             id: "1-1-2",
+//             name: "대한물산_유지보수계약.docx",
+//             fileType: "file",
+//             path: "/documents/contracts/2025/대한물산_유지보수계약.docx",
+//             size: "1.8 MB",
+//             modified: "2025-05-02",
+//           },
+//         ],
+//       },
+//       {
+//         id: "1-2",
+//         name: "2024년 계약",
+//         fileType: "folder",
+//         path: "/documents/contracts/2024",
+//         children: [
+//           {
+//             id: "1-2-1",
+//             name: "성원기업_서비스계약.pdf",
+//             fileType: "file",
+//             path: "/documents/contracts/2024/성원기업_서비스계약.pdf",
+//             size: "3.1 MB",
+//             modified: "2024-12-15",
+//           },
+//         ],
+//       },
+//     ],
+//   },
+//   {
+//     id: "2",
+//     name: "견적서",
+//     fileType: "folder",
+//     path: "/documents/quotes",
+//     children: [
+//       {
+//         id: "2-1",
+//         name: "한국전자_5월납품견적.xlsx",
+//         fileType: "file",
+//         path: "/documents/quotes/한국전자_5월납품견적.xlsx",
+//         size: "1.2 MB",
+//         modified: "2025-05-01",
+//       },
+//       {
+//         id: "2-2",
+//         name: "대한물산_서비스견적.pdf",
+//         fileType: "file",
+//         path: "/documents/quotes/대한물산_서비스견적.pdf",
+//         size: "0.8 MB",
+//         modified: "2025-04-28",
+//       },
+//     ],
+//   },
+//   {
+//     id: "3",
+//     name: "인보이스",
+//     fileType: "folder",
+//     path: "/documents/invoices",
+//     children: [
+//       {
+//         id: "3-1",
+//         name: "4월 인보이스",
+//         fileType: "folder",
+//         path: "/documents/invoices/april",
+//         children: [
+//           {
+//             id: "3-1-1",
+//             name: "한국전자_4월인보이스.pdf",
+//             fileType: "file",
+//             path: "/documents/invoices/april/한국전자_4월인보이스.pdf",
+//             size: "0.7 MB",
+//             modified: "2025-04-30",
+//           },
+//           {
+//             id: "3-1-2",
+//             name: "대한물산_4월인보이스.pdf",
+//             fileType: "file",
+//             path: "/documents/invoices/april/대한물산_4월인보이스.pdf",
+//             size: "0.6 MB",
+//             modified: "2025-04-30",
+//           },
+//         ],
+//       },
+//       {
+//         id: "3-2",
+//         name: "3월 인보이스",
+//         fileType: "folder",
+//         path: "/documents/invoices/march",
+//         children: [
+//           {
+//             id: "3-2-1",
+//             name: "한국전자_3월인보이스.pdf",
+//             fileType: "file",
+//             path: "/documents/invoices/march/한국전자_3월인보이스.pdf",
+//             size: "0.7 MB",
+//             modified: "2025-03-31",
+//           },
+//         ],
+//       },
+//     ],
+//   },
+//   {
+//     id: "4",
+//     name: "템플릿",
+//     fileType: "folder",
+//     path: "/documents/templates",
+//     children: [
+//       {
+//         id: "4-1",
+//         name: "계약서_템플릿.docx",
+//         fileType: "file",
+//         path: "/documents/templates/계약서_템플릿.docx",
+//         size: "0.5 MB",
+//         modified: "2025-01-15",
+//         isTemplate: true,
+//       },
+//       {
+//         id: "4-2",
+//         name: "견적서_템플릿.xlsx",
+//         fileType: "file",
+//         path: "/documents/templates/견적서_템플릿.xlsx",
+//         size: "0.4 MB",
+//         modified: "2025-01-15",
+//         isTemplate: true,
+//       },
+//       {
+//         id: "4-3",
+//         name: "인보이스_템플릿.docx",
+//         fileType: "file",
+//         path: "/documents/templates/인보이스_템플릿.docx",
+//         size: "0.3 MB",
+//         modified: "2025-01-15",
+//         isTemplate: true,
+//       },
+//     ],
+//   },
+// ]
 
 // 트리 아이템 컴포넌트
 const TreeItem = ({

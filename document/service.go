@@ -149,3 +149,5 @@ func addItemToTree(items *[]FileSystemItem, item FileSystemItem, relPath string)
 		}
 	}
 }
+
+// 문자열 치환
