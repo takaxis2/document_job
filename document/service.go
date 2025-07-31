@@ -21,7 +21,7 @@ func selectDirectory(ctx context.Context) (string, error) {
 }
 
 // 폴더 트리를 가져오는 함수
-func getFolderTree(path string) ([]FileSystemItem, error) {
+func getFolderTree(ctx context.Context, path string) ([]FileSystemItem, error) {
 	var items []FileSystemItem
 
 	// 경로가 존재하는지 확인
@@ -101,9 +101,11 @@ func getFolderTree(path string) ([]FileSystemItem, error) {
 	})
 
 	if err != nil {
+		runtime.LogPrint(ctx, "폴더 탐색 중 오류 발생: "+err.Error())
 		return nil, fmt.Errorf("폴더 탐색 중 오류 발생: %v", err)
 	}
 
+	runtime.LogPrint(ctx, fmt.Sprintf("폴더 트리 로드 완료, %d개 아이템", len(items)))
 	return items, nil
 }
 

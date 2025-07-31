@@ -1,30 +1,38 @@
 import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card"
-// import { Badge } from "@/components/ui/badge"
 import { Button } from "../components/ui/button"
 import DocumentTree from "../components/document-tree"
 // import { useToast } from "@/hooks/use-toast"
 import FolderPathModal from "@/components/folder-path-modal"
+import { useFileStore } from "@/stores/fileStore"
+import { GetFolderTree } from "../../wailsjs/go/document/Document"
+import { LogPrint } from "../../wailsjs/runtime/runtime"
 
 export default function DocumentsPage() {
-  const [folderPath, setFolderPath] = useState<string | null>(null)
+  // const [folderPath, setFolderPath] = useState<string | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const { setFolderTree, setCurrentPath, folderPath } = useFileStore()
   // const { toast } = useToast()
 
   useEffect(() => {
-    const savedPath = localStorage.getItem("documentFolderPath")
-    if (savedPath) {
-      setFolderPath(savedPath)
+    
+    if (folderPath) {
+      // setFolderPath(currentPath)
     } else {
       setIsModalOpen(true) // 경로가 없으면 모달 열기
     }
   }, [])
 
-  const handleSavePath = (path: string) => {
-    setFolderPath(path)
-    localStorage.setItem("documentFolderPath", path)
+  const handleSavePath = async (path: string) => {
+    // setFolderPath(path)
+    setCurrentPath(path)
     setIsModalOpen(false)
+
     // 이 시점에 폴더트리 탐색을 시작해야 한다.
+    const folderTree = await GetFolderTree(path)
+    LogPrint("폴더 트리 로드 완료: " + JSON.stringify(folderTree, null, 2))
+    setFolderTree(folderTree)
+    
   }
 
   const handleChangeFolder = () => {

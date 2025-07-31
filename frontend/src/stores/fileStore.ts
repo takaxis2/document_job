@@ -1,39 +1,42 @@
 import { create } from 'zustand'
 import { GetFolderTree, SelectDirectory } from '../../wailsjs/go/document/Document'
-// import { document } from '../../wailsjs/go/models'
+import { document } from '../../wailsjs/go/models'
 
 // 파일 시스템 아이템 타입
-export interface FileSystemItem {
-  id: string
-  name: string
-  fileType: 'file' | 'folder'
-  children?: FileSystemItem[]
-  path: string
-  size?: string
-  modified?: string
-  isTemplate?: boolean
-}
+// export interface FileSystemItem {
+//   id: string
+//   name: string
+//   fileType: 'file' | 'folder'
+//   children?: FileSystemItem[]
+//   path: string
+//   size?: string
+//   modified?: string
+//   isTemplate?: boolean
+// }
 
 
 // 파일 스토어 상태 타입
 interface FileStoreState {
   // 상태
-  fileSystem: FileSystemItem[]
-  currentPath: string
+  fileSystem: document.FileSystemItem[]
+  folderPath: string
   error: string | null
   
   // 액션
   selectDirectory: () => Promise<void>
   loadFolderTree: (path: string) => Promise<void>
+  setFolderTree: (item: document.FileSystemItem[]) => void
+  setCurrentPath: (path: string) => void
 
 }
 
 export const useFileStore = create<FileStoreState>((set, get) => ({
   // 초기 상태
   fileSystem: [],
-  currentPath: '',
+  folderPath: '',
   isLoading: false,
   error: null,
+
 
   // 폴더 선택
   selectDirectory: async () => {
@@ -58,7 +61,7 @@ export const useFileStore = create<FileStoreState>((set, get) => ({
       // const items = backendItems.map(convertBackendItem)
       set({ 
         fileSystem: items, 
-        currentPath: path,
+        folderPath: path,
         // selectedItems: new Set(),
         // expandedItems: new Set()
       })
@@ -67,5 +70,11 @@ export const useFileStore = create<FileStoreState>((set, get) => ({
     } finally {
     //   set({ isLoading: false })
     }
+  },
+  setFolderTree: (item: document.FileSystemItem[]) => {
+    set({ fileSystem: item })
+  },
+  setCurrentPath: (path: string) => {
+    set({ folderPath: path })
   },
 }))

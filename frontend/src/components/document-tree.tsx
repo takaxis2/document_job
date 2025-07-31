@@ -32,6 +32,7 @@ import PresetSelectionModal, { type ReplacementPreset } from "./preset-selection
 import PresetManagementModal from "./preset-management-modal"
 import { useToast } from "@/hooks/use-toast"
 import VariableSelectionModal from "./variable-selection-modal"
+import { useFileStore } from "@/stores/fileStore"
 
 // 파일 타입에 따른 아이콘 매핑
 const fileIcons: Record<string, React.ReactNode> = {
@@ -131,7 +132,7 @@ const getFileIcon = (filename: string) => {
 interface FileSystemItem {
   id: string
   name: string
-  fileType: "file" | "folder"
+  fileType: "file" | "folder" | string
   children?: FileSystemItem[]
   path: string
   size?: string // 굳이 필요한가?
@@ -866,6 +867,7 @@ export default function DocumentTree() {
   const [selectedFiles, setSelectedFiles] = useState<FileSystemItem[]>([])
   const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false)
   const [selectedTemplate, setSelectedTemplate] = useState<FileSystemItem | null>(null)
+  const { fileSystem } = useFileStore()
 
   // 선택된 아이템 찾기
   const findItemById = (items: FileSystemItem[], id: string | null): FileSystemItem | null => {
@@ -902,7 +904,7 @@ export default function DocumentTree() {
 
   // 선택된 파일 업데이트
   useEffect(() => {
-    const allFiles = getAllFileItems(sampleFileSystem)
+    const allFiles = getAllFileItems(fileSystem)
     const selected = allFiles.filter((file) => selectedItems.has(file.id))
     setSelectedFiles(selected)
   }, [selectedItems])
@@ -920,7 +922,7 @@ export default function DocumentTree() {
 
   // 아이템 선택 토글
   const toggleSelectItem = (id: string, multiSelect: boolean, rangeSelect: boolean) => {
-    const item = findItemById(sampleFileSystem, id)
+    const item = findItemById(fileSystem, id)
 
     // 폴더는 선택하지 않음
     if (item?.fileType === "folder") {
@@ -949,7 +951,7 @@ export default function DocumentTree() {
 
   // 범위 선택
   const selectRange = (startId: string, endId: string) => {
-    const allFiles = getAllFileItems(sampleFileSystem)
+    const allFiles = getAllFileItems(fileSystem)
     const startIndex = allFiles.findIndex((file) => file.id === startId)
     const endIndex = allFiles.findIndex((file) => file.id === endId)
 
@@ -1026,7 +1028,7 @@ export default function DocumentTree() {
     }, [])
   }
 
-  const filteredFileSystem = filterItems(sampleFileSystem, searchTerm)
+  const filteredFileSystem = filterItems(fileSystem, searchTerm)
 
   return (
     <div className="flex flex-col">

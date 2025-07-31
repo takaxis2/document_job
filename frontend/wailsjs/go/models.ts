@@ -3,7 +3,7 @@ export namespace document {
 	export class FileSystemItem {
 	    id: string;
 	    name: string;
-	    FileType: string;
+	    fileType: string;
 	    children: FileSystemItem[];
 	    path: string;
 	
@@ -15,7 +15,7 @@ export namespace document {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.id = source["id"];
 	        this.name = source["name"];
-	        this.FileType = source["FileType"];
+	        this.fileType = source["fileType"];
 	        this.children = this.convertValues(source["children"], FileSystemItem);
 	        this.path = source["path"];
 	    }
