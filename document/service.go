@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/lukasjarosch/go-docx"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
@@ -138,7 +139,7 @@ func addItemToTree(items *[]FileSystemItem, item FileSystemItem, relPath string)
 		return
 	}
 
-	// 부모 폴더 찾기
+	// 공통 상위위 폴더 찾기
 	parentName := pathParts[0]
 	for i := range *items {
 		if (*items)[i].Name == parentName && (*items)[i].FileType == "folder" {
@@ -151,3 +152,141 @@ func addItemToTree(items *[]FileSystemItem, item FileSystemItem, relPath string)
 }
 
 // 문자열 치환
+// 1. 상대경로 파악
+// 2. 결과물 저장 경로
+// 3. 필요한 폴더 생성
+// 4. 파일 생성
+func processSelectedFiles(filePaths []string, destination string, replacements map[string]string) (int, error) {
+	if len(filePaths) == 0 {
+		return 0, fmt.Errorf("처리할 파일이 없습니다")
+	}
+
+	// 공통 상위 폴더 찾기
+	commonPath := findCommonPrefix(filePaths)
+	if commonPath == "" {
+		return 0, fmt.Errorf("공통 경로를 찾을 수 없습니다")
+	}
+
+	// 각 파일 처리
+	for _, filePath := range filePaths {
+		// 상대경로 계산
+		relPath, err := filepath.Rel(commonPath, filePath)
+		if err != nil {
+			return 0, fmt.Errorf("상대 경로 계산 오류 (%s): %v", filePath, err)
+		}
+
+		// 결과물 저장 경로
+		dstPath := filepath.Join(destination, relPath)
+
+		// 필요한 폴더 생성
+		dstDir := filepath.Dir(dstPath)
+		if err := os.MkdirAll(dstDir, 0755); err != nil {
+			return 0, fmt.Errorf("폴더 생성 오류 (%s): %v", dstDir, err)
+		}
+
+		// 파일 처리 / 생성
+
+	}
+
+	return 1, nil
+}
+
+// 공통 접두사 찾기
+// 선택한 파일이 서로 다른 폴더에 있을 경우우
+func findCommonPrefix(paths []string) string {
+	if len(paths) == 0 {
+		return ""
+	}
+	if len(paths) == 1 {
+		return filepath.Dir(paths[0])
+	}
+
+	parts := strings.Split(filepath.ToSlash(filepath.Dir(paths[0])), "/")
+	for i := 1; i < len(paths); i++ {
+		otherParts := strings.Split(filepath.ToSlash(filepath.Dir(paths[i])), "/")
+		j := 0
+		for j < len(parts) && j < len(otherParts) && parts[j] == otherParts[j] {
+			j++
+		}
+		parts = parts[:j]
+	}
+
+	return filepath.FromSlash(strings.Join(parts, "/"))
+}
+
+// 파일 처리
+func processFile(filePath string, newPath string, replacements map[string]string) error {
+	ext := strings.ToLower(filepath.Ext(filePath))
+
+	switch ext {
+	case ".doc":
+	case ".docx":
+		return processWordFile(filePath, newPath, replacements)
+	case ".xlsx":
+		return processExcelFile(filePath, newPath, replacements)
+	default:
+	}
+	return nil
+}
+
+func processWordFile(filePath string, newPath string, replacements map[string]string) error {
+
+	docx.Open(filePath)
+
+	return nil
+}
+
+func processExcelFile(filePath string, newPath string, replacements map[string]string) error {
+	return nil
+}
+
+// func createFolder(path, commonAncestor, destinationPath string) (string, error) {
+// 	relPath, err := filepath.Rel(commonAncestor, path)
+// 	if err != nil {
+// 		return "", fmt.Errorf("상대 경로 계산 오류 (%s): %v", path, err)
+// 	}
+
+// 	newPath := filepath.Join(destinationPath, relPath)
+
+// 	fileInfo, err := os.Stat(path)
+// 	if err != nil {
+// 		return "", fmt.Errorf("파일 정보 읽기 오류 (%s): %v", path, err)
+// 	}
+
+// 	if fileInfo.IsDir() {
+// 		// 디렉토리 생성
+// 		err = os.MkdirAll(newPath, os.ModePerm)
+// 		if err != nil && !os.IsExist(err) {
+// 			return "", fmt.Errorf("디렉토리 생성 오류 (%s): %v", newPath, err)
+// 		}
+
+// 		// 디렉토리 내용 처리
+// 		files, err := os.ReadDir(path)
+// 		if err != nil {
+// 			return "", fmt.Errorf("디렉토리 읽기 오류 (%s): %v", path, err)
+// 		}
+
+// 		for _, file := range files {
+// 			count, err := createFolder(filepath.Join(path, file.Name()), commonAncestor, destinationPath)
+// 			if err != nil {
+// 				fmt.Printf("파일 처리 중 오류 발생 (%s): %v\n", file.Name(), err)
+// 				continue // 오류가 발생해도 계속 진행
+// 			}
+
+// 		}
+// 		return processedCount, nil
+// 	}
+
+// 	// 파일 처리
+// 	// 파일을 위한 디렉토리 생성
+// 	err = os.MkdirAll(filepath.Dir(newPath), os.ModePerm)
+// 	if err != nil && !os.IsExist(err) {
+// 		return 0, fmt.Errorf("디렉토리 생성 오류 (%s): %v", filepath.Dir(newPath), err)
+// 	}
+
+// 	err = ds.processFile(path, newPath, replacements)
+// 	if err != nil {
+// 		return 0, fmt.Errorf("디렉토리 생성 오류 (%s): %v", filepath.Dir(newPath), err)
+// 	}
+// 	return 1, nil
+// }

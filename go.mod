@@ -44,3 +44,5 @@ require (
 )
 
 // replace github.com/wailsapp/wails/v2 v2.10.2 => C:\Users\axis1\go\pkg\mod
+
+// go-docx 대신 github.com/gomutex/godocx도 사용 가능
