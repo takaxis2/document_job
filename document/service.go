@@ -5,10 +5,12 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 
 	"github.com/lukasjarosch/go-docx"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
+	"github.com/xuri/excelize/v2"
 )
 
 func selectDirectory(ctx context.Context) (string, error) {
@@ -156,15 +158,15 @@ func addItemToTree(items *[]FileSystemItem, item FileSystemItem, relPath string)
 // 2. 결과물 저장 경로
 // 3. 필요한 폴더 생성
 // 4. 파일 생성
-func processSelectedFiles(filePaths []string, destination string, replacements map[string]string) (int, error) {
+func processSelectedFiles(filePaths []string, destination string, replacements map[string]string) error {
 	if len(filePaths) == 0 {
-		return 0, fmt.Errorf("처리할 파일이 없습니다")
+		return fmt.Errorf("처리할 파일이 없습니다")
 	}
 
 	// 공통 상위 폴더 찾기
 	commonPath := findCommonPrefix(filePaths)
 	if commonPath == "" {
-		return 0, fmt.Errorf("공통 경로를 찾을 수 없습니다")
+		return fmt.Errorf("공통 경로를 찾을 수 없습니다")
 	}
 
 	// 각 파일 처리
@@ -172,7 +174,7 @@ func processSelectedFiles(filePaths []string, destination string, replacements m
 		// 상대경로 계산
 		relPath, err := filepath.Rel(commonPath, filePath)
 		if err != nil {
-			return 0, fmt.Errorf("상대 경로 계산 오류 (%s): %v", filePath, err)
+			return fmt.Errorf("상대 경로 계산 오류 (%s): %v", filePath, err)
 		}
 
 		// 결과물 저장 경로
@@ -181,14 +183,16 @@ func processSelectedFiles(filePaths []string, destination string, replacements m
 		// 필요한 폴더 생성
 		dstDir := filepath.Dir(dstPath)
 		if err := os.MkdirAll(dstDir, 0755); err != nil {
-			return 0, fmt.Errorf("폴더 생성 오류 (%s): %v", dstDir, err)
+			return fmt.Errorf("폴더 생성 오류 (%s): %v", dstDir, err)
 		}
 
 		// 파일 처리 / 생성
-
+		if err := processFile(filePath, dstPath, replacements); err != nil {
+			return fmt.Errorf("파일 처리 오류 (%s): %v", filePath, err)
+		}
 	}
 
-	return 1, nil
+	return nil
 }
 
 // 공통 접두사 찾기
@@ -231,62 +235,160 @@ func processFile(filePath string, newPath string, replacements map[string]string
 
 func processWordFile(filePath string, newPath string, replacements map[string]string) error {
 
-	docx.Open(filePath)
+	f, err := docx.Open(filePath)
+	if err != nil {
+		return fmt.Errorf("docx 파일 열기 오류 : %v", err)
+	}
+	defer f.Close()
+
+	re := regexp.MustCompile((`{{([^{}]+)}}`))
+
+	content := f.GetFile(filepath.Base(filePath))
+	contentStr := string(content)
+
+	contentStr = re.ReplaceAllStringFunc(contentStr, func(match string) string {
+		key := strings.Trim(match, "{}")
+		if value, ok := replacements[key]; ok {
+			if len(value) == 1 {
+				value = "0" + value
+			}
+			return value
+		}
+		return match
+	})
+
+	content = []byte(contentStr)
+
+	newFileName, err := processFileName(newPath, replacements)
+	if err != nil {
+		newFileName = newPath
+	}
+
+	f.SetFile(newFileName, content)
+
+	err = f.WriteToFile(newFileName)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
 
 func processExcelFile(filePath string, newPath string, replacements map[string]string) error {
+	f, err := excelize.OpenFile(filePath)
+	if err != nil {
+		return fmt.Errorf("excel 파일 열기 오류 : %v", err)
+	}
+
+	defer func() {
+		if err := f.Close(); err != nil {
+			fmt.Printf("Excel 파일 닫기 오류: %v\n", err)
+		}
+	}()
+
+	//{{}}형식의 플레이스 홀더를 찾기위한 정규식
+	re := regexp.MustCompile((`{{([^{}]+)}}`))
+
+	//모든 시트에대해 작업 수행
+	for _, sheetName := range f.GetSheetList() {
+		if err := processSheet(f, sheetName, re, replacements); err != nil {
+			return fmt.Errorf("시트 '%s' 처리 오류: %v", sheetName, err)
+		}
+	}
+
+	newFileName, err := processFileName(newPath, replacements)
+	if err != nil {
+		//에러 발생시 _template 파일명을 사용
+		newFileName = newPath
+	}
+
+	//새 파일로 저장
+	if err := f.SaveAs(newFileName); err != nil {
+		return fmt.Errorf("수정된 Excel 파일 저장 오류 : %v", err)
+	}
+
 	return nil
 }
 
-// func createFolder(path, commonAncestor, destinationPath string) (string, error) {
-// 	relPath, err := filepath.Rel(commonAncestor, path)
-// 	if err != nil {
-// 		return "", fmt.Errorf("상대 경로 계산 오류 (%s): %v", path, err)
-// 	}
+// processSheet는 단일 시트를 처리합니다
+func processSheet(f *excelize.File, sheetName string, re *regexp.Regexp, replacements map[string]string) error {
+	rows, err := f.GetRows(sheetName)
+	if err != nil {
+		return fmt.Errorf("시트 읽기 오류: %v", err)
+	}
 
-// 	newPath := filepath.Join(destinationPath, relPath)
+	for rowIndex, row := range rows {
+		if err := processRow(f, sheetName, row, rowIndex, re, replacements); err != nil {
+			return fmt.Errorf("행 %d 처리 오류: %v", rowIndex+1, err)
+		}
+	}
+	return nil
+}
 
-// 	fileInfo, err := os.Stat(path)
-// 	if err != nil {
-// 		return "", fmt.Errorf("파일 정보 읽기 오류 (%s): %v", path, err)
-// 	}
+// processRow는 단일 행을 처리합니다
+func processRow(f *excelize.File, sheetName string, row []string, rowIndex int, re *regexp.Regexp, replacements map[string]string) error {
+	for colIndex, cellValue := range row {
+		newValue := processCell(cellValue, re, replacements)
 
-// 	if fileInfo.IsDir() {
-// 		// 디렉토리 생성
-// 		err = os.MkdirAll(newPath, os.ModePerm)
-// 		if err != nil && !os.IsExist(err) {
-// 			return "", fmt.Errorf("디렉토리 생성 오류 (%s): %v", newPath, err)
-// 		}
+		//값이 변경되었다면 새 값을 셀에 설정
+		if newValue != cellValue {
+			cellName, err := excelize.CoordinatesToCellName(colIndex+1, rowIndex+1)
+			if err != nil {
+				return fmt.Errorf("셀 좌표변환 오류 : %v", err)
+			}
+			if err := f.SetCellValue(sheetName, cellName, newValue); err != nil {
+				return fmt.Errorf("셀 값 설정 오류 : %v", err)
+			}
+		}
+	}
+	return nil
+}
 
-// 		// 디렉토리 내용 처리
-// 		files, err := os.ReadDir(path)
-// 		if err != nil {
-// 			return "", fmt.Errorf("디렉토리 읽기 오류 (%s): %v", path, err)
-// 		}
+// processCell는 단일 셀의 값을 처리합니다
+func processCell(cellValue string, re *regexp.Regexp, replacements map[string]string) string {
+	return re.ReplaceAllStringFunc(cellValue, func(match string) string {
+		key := strings.Trim(match, "{}")
+		if value, ok := replacements[key]; ok {
+			if len(value) == 1 {
+				value = "0" + value
+			}
+			return value
+		}
+		return match
+	})
+}
 
-// 		for _, file := range files {
-// 			count, err := createFolder(filepath.Join(path, file.Name()), commonAncestor, destinationPath)
-// 			if err != nil {
-// 				fmt.Printf("파일 처리 중 오류 발생 (%s): %v\n", file.Name(), err)
-// 				continue // 오류가 발생해도 계속 진행
-// 			}
+func processFileName(file_path string, replacements map[string]string) (string, error) {
+	// 파일명과 확장자 분리
+	dir := filepath.Dir(file_path)
+	filename := filepath.Base(file_path)
+	ext := filepath.Ext(filename)
+	name := strings.TrimSuffix(filename, ext)
 
-// 		}
-// 		return processedCount, nil
-// 	}
+	// '_template'이 포함된 파일명인지 확인
+	if !strings.Contains(name, "_template") {
+		return "", fmt.Errorf("파일명에 '_template'이 포함되어 있지 않습니다")
+	}
 
-// 	// 파일 처리
-// 	// 파일을 위한 디렉토리 생성
-// 	err = os.MkdirAll(filepath.Dir(newPath), os.ModePerm)
-// 	if err != nil && !os.IsExist(err) {
-// 		return 0, fmt.Errorf("디렉토리 생성 오류 (%s): %v", filepath.Dir(newPath), err)
-// 	}
+	// replacements에서 연도와 월 가져오기
+	year, exists := replacements["WORK_YEAR"]
+	if !exists {
+		return "", fmt.Errorf("WORK_YEAR가 replacements에 없습니다")
+	}
 
-// 	err = ds.processFile(path, newPath, replacements)
-// 	if err != nil {
-// 		return 0, fmt.Errorf("디렉토리 생성 오류 (%s): %v", filepath.Dir(newPath), err)
-// 	}
-// 	return 1, nil
-// }
+	month, exists := replacements["WORK_MONTH"]
+	if !exists {
+		return "", fmt.Errorf("WORK_MONTH가 replacements에 없습니다")
+	}
+
+	// 월이 한 자리수인 경우 두 자리로 변환 (예: "3" -> "03")
+	if len(month) == 1 {
+		month = "0" + month
+	}
+
+	// 새 파일명 생성 (_template을 _YYYYMM으로 대체)
+	newFilename := strings.Replace(name, "_template", fmt.Sprintf("_%s%s", year, month), 1)
+	newPath := filepath.Join(dir, newFilename+ext)
+
+	return newPath, nil
+}

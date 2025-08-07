@@ -25,3 +25,7 @@ func (d *Document) SelectDirectory() (string, error) {
 func (d *Document) GetFolderTree(path string) ([]FileSystemItem, error) {
 	return getFolderTree(d.ctx, path)
 }
+
+func (d *Document) ProcessSelectedFiles(filePaths []string, destination string, replacements map[string]string) error {
+	return processSelectedFiles(filePaths, destination, replacements)
+}
