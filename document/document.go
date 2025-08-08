@@ -4,15 +4,19 @@ import (
 	"context"
 	"doc_job/db"
 	"doc_job/models"
+	"doc_job/preset"
 	"log"
 )
 
 type Document struct {
-	ctx context.Context
+	ctx           context.Context
+	presetManager *preset.PresetManager
 }
 
 func NewDocument() *Document {
-	return &Document{}
+	return &Document{
+		presetManager: preset.NewPresetManager(),
+	}
 }
 
 func (d *Document) Startup(ctx context.Context) {
@@ -101,4 +105,58 @@ func (d *Document) UpdateTemplate(template *models.TemplateModel) error {
 
 func (d *Document) DeleteTemplate(id int64) error {
 	return db.DeleteTemplate(id)
+}
+
+// Preset 관련 메서드들
+func (d *Document) ExtractVariables(content string) ([]preset.VariableInfo, error) {
+	return preset.ExtractVariables(content)
+}
+
+func (d *Document) ValidateVariables(variables []string, replacements map[string]string) preset.ValidationResult {
+	return preset.ValidateVariables(variables, replacements)
+}
+
+func (d *Document) ReplaceVariables(content string, replacements map[string]string) (string, error) {
+	return preset.ReplaceVariables(content, replacements)
+}
+
+func (d *Document) GetUnreplacedVariables(content string, replacements map[string]string) []string {
+	return preset.GetUnreplacedVariables(content, replacements)
+}
+
+func (d *Document) GetReplacementStatistics(content string, replacements map[string]string) map[string]int {
+	return preset.GetReplacementStatistics(content, replacements)
+}
+
+// Preset Manager 관련 메서드들
+func (d *Document) CreatePreset(name, description, category string, variables map[string]string) (*preset.Preset, error) {
+	return d.presetManager.CreatePreset(name, description, category, variables)
+}
+
+func (d *Document) GetAllPresets() []*preset.Preset {
+	return d.presetManager.GetAllPresets()
+}
+
+func (d *Document) GetPresetByID(id string) (*preset.Preset, error) {
+	return d.presetManager.GetPreset(id)
+}
+
+func (d *Document) UpdatePreset(id string, name, description, category string, variables map[string]string) (*preset.Preset, error) {
+	return d.presetManager.UpdatePreset(id, name, description, category, variables)
+}
+
+func (d *Document) DeletePreset(id string) error {
+	return d.presetManager.DeletePreset(id)
+}
+
+func (d *Document) SearchPresets(query string) []*preset.Preset {
+	return d.presetManager.SearchPresets(query)
+}
+
+func (d *Document) GetPresetCategories() []string {
+	return d.presetManager.GetCategories()
+}
+
+func (d *Document) GetPresetStatistics() map[string]interface{} {
+	return d.presetManager.GetPresetStatistics()
 }

@@ -5,8 +5,11 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"regexp"
+
+	// "regexp"
 	"strings"
+
+	"doc_job/preset"
 
 	"github.com/lukasjarosch/go-docx"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
@@ -241,21 +244,14 @@ func processWordFile(filePath string, newPath string, replacements map[string]st
 	}
 	defer f.Close()
 
-	re := regexp.MustCompile((`{{([^{}]+)}}`))
-
 	content := f.GetFile(filepath.Base(filePath))
 	contentStr := string(content)
 
-	contentStr = re.ReplaceAllStringFunc(contentStr, func(match string) string {
-		key := strings.Trim(match, "{}")
-		if value, ok := replacements[key]; ok {
-			if len(value) == 1 {
-				value = "0" + value
-			}
-			return value
-		}
-		return match
-	})
+	// preset 패키지 사용하여 변수 치환
+	contentStr, err = preset.ReplaceVariables(contentStr, replacements)
+	if err != nil {
+		return fmt.Errorf("변수 치환 오류: %v", err)
+	}
 
 	content = []byte(contentStr)
 
@@ -286,12 +282,9 @@ func processExcelFile(filePath string, newPath string, replacements map[string]s
 		}
 	}()
 
-	//{{}}형식의 플레이스 홀더를 찾기위한 정규식
-	re := regexp.MustCompile((`{{([^{}]+)}}`))
-
 	//모든 시트에대해 작업 수행
 	for _, sheetName := range f.GetSheetList() {
-		if err := processSheet(f, sheetName, re, replacements); err != nil {
+		if err := processSheet(f, sheetName, replacements); err != nil {
 			return fmt.Errorf("시트 '%s' 처리 오류: %v", sheetName, err)
 		}
 	}
@@ -311,14 +304,14 @@ func processExcelFile(filePath string, newPath string, replacements map[string]s
 }
 
 // processSheet는 단일 시트를 처리합니다
-func processSheet(f *excelize.File, sheetName string, re *regexp.Regexp, replacements map[string]string) error {
+func processSheet(f *excelize.File, sheetName string, replacements map[string]string) error {
 	rows, err := f.GetRows(sheetName)
 	if err != nil {
 		return fmt.Errorf("시트 읽기 오류: %v", err)
 	}
 
 	for rowIndex, row := range rows {
-		if err := processRow(f, sheetName, row, rowIndex, re, replacements); err != nil {
+		if err := processRow(f, sheetName, row, rowIndex, replacements); err != nil {
 			return fmt.Errorf("행 %d 처리 오류: %v", rowIndex+1, err)
 		}
 	}
@@ -326,9 +319,12 @@ func processSheet(f *excelize.File, sheetName string, re *regexp.Regexp, replace
 }
 
 // processRow는 단일 행을 처리합니다
-func processRow(f *excelize.File, sheetName string, row []string, rowIndex int, re *regexp.Regexp, replacements map[string]string) error {
+func processRow(f *excelize.File, sheetName string, row []string, rowIndex int, replacements map[string]string) error {
 	for colIndex, cellValue := range row {
-		newValue := processCell(cellValue, re, replacements)
+		newValue, err := preset.ReplaceVariablesInText(cellValue, replacements)
+		if err != nil {
+			return fmt.Errorf("셀 변수 치환 오류: %v", err)
+		}
 
 		//값이 변경되었다면 새 값을 셀에 설정
 		if newValue != cellValue {
@@ -342,20 +338,6 @@ func processRow(f *excelize.File, sheetName string, row []string, rowIndex int, 
 		}
 	}
 	return nil
-}
-
-// processCell는 단일 셀의 값을 처리합니다
-func processCell(cellValue string, re *regexp.Regexp, replacements map[string]string) string {
-	return re.ReplaceAllStringFunc(cellValue, func(match string) string {
-		key := strings.Trim(match, "{}")
-		if value, ok := replacements[key]; ok {
-			if len(value) == 1 {
-				value = "0" + value
-			}
-			return value
-		}
-		return match
-	})
 }
 
 func processFileName(file_path string, replacements map[string]string) (string, error) {
