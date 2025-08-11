@@ -94,12 +94,33 @@ func createTables() error {
 		FOREIGN KEY (partner_id) REFERENCES partners (id)
 	);`
 
+	createPresetModelTable := `
+	CREATE TABLE IF NOT EXISTS presets (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		name TEXT NOT NULL,
+		description TEXT,
+		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+	);`
+
+	createPresetItemTable := `
+	CREATE TABLE IF NOT EXISTS preset_items (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		preset_id INTEGER,
+		key TEXT NOT NULL,
+		description TEXT,
+		
+		FOREIGN KEY (preset_id) REFERENCES presets (id)
+	);`
+
 	// 테이블 생성 실행
 	tables := []string{
 		createDocumentsTable,
 		createPartnersTable,
 		createTemplatesTable,
 		createProcessingHistoryTable,
+		createPresetModelTable,
+		createPresetItemTable,
 	}
 
 	for _, table := range tables {
@@ -354,3 +375,84 @@ func DeleteTemplate(id int64) error {
 	_, err := db.Exec(query, id)
 	return err
 }
+
+// Preset CRUD
+func CreatePreset(preset *models.PresetModel) error {
+	query := `INSERT INTO presets (name, description, created_at, updated_at) VALUES (?, ?, ?, ?)`
+
+	result, err := db.Exec(query, preset.Name, preset.Description, time.Now(), time.Now())
+	if err != nil {
+		return err
+	}
+
+	id, err := result.LastInsertId()
+	if err != nil {
+		return err
+	}
+
+	preset.ID = id
+
+	for _, item := range preset.Items {
+		if err := CreatePresetItem(&item); err != nil {
+			return err
+		}
+
+	}
+
+	return nil
+}
+
+func GetPresetByID(id int64) (*models.PresetModel, error) { return nil, nil }
+
+func GetAllPresets() ([]*models.PresetModel, error) {
+	query := `SELECT id, name, description, created_at, updated_at FROM presets ORDER BY created_at DESC`
+
+	rows, err := db.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var presets []*models.PresetModel
+	for rows.Next() {
+		preset := &models.PresetModel{}
+		err := rows.Scan(&preset.ID, &preset.Name, &preset.Description)
+		if err != nil {
+			return nil, err
+		}
+		presets = append(presets, preset)
+
+	}
+
+	return presets, nil
+}
+
+func UpdatePreset(preset *models.PresetModel) error { return nil }
+
+func DeletePreset(id int64) error { return nil }
+
+// PresetItem CRUD
+func CreatePresetItem(presetItem *models.PresetItem) error {
+	query := `INSERT INTO preset_items (preset_id, key, description) VALUES (?, ?, ?)`
+
+	result, err := db.Exec(query, presetItem.PresetID, presetItem.Key, presetItem.Description)
+	if err != nil {
+		return err
+	}
+	id, err := result.LastInsertId()
+	if err != nil {
+		return err
+	}
+	presetItem.ID = id
+	return nil
+}
+
+func GetPresetItemByID(id int64) (*models.PresetItem, error) { return nil, nil }
+
+func GetAllPresetItems() ([]*models.PresetItem, error) { return nil, nil }
+
+func UpdatePresetIem(presetItem *models.PresetItem) error { return nil }
+
+func DeletePresetIem(id int64) error { return nil }
+
+//

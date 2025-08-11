@@ -133,7 +133,7 @@ export default function PresetSelectionModal({
 
           <div className="flex flex-1 overflow-hidden">
             {/* 카테고리 사이드바 */}
-            <div className="w-1/4 border-r pr-4">
+            {/* <div className="w-1/4 border-r pr-4">
               <div
                 className={`px-3 py-2 rounded-md cursor-pointer mb-1 ${
                   selectedCategory === null
@@ -157,7 +157,7 @@ export default function PresetSelectionModal({
                   {category}
                 </div>
               ))}
-            </div>
+            </div> */}
 
             {/* 프리셋 목록 */}
             <div className="flex-1 pl-4">

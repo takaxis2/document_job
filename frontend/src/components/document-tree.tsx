@@ -634,7 +634,9 @@ const StringReplacementPanel = ({
     const existingItems = replacements.filter((item) => !preset.items.some((presetItem) => presetItem.key === item.key))
 
     // 프리셋 항목과 기존 항목 병합
-    const mergedItems = [...preset.items, ...existingItems]
+    // const mergedItems = [...preset.items, ...existingItems]
+    // 선댁된 프리셋이 기존걸 대체
+    const mergedItems = [...preset.items]
 
     // 중복 제거
     const uniqueItems = mergedItems.reduce<Array<{ key: string; value: string }>>((acc, item) => {

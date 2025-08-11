@@ -48,3 +48,25 @@ type ProcessingHistoryModel struct {
 	Status     string    `json:"status"`
 	CreatedAt  time.Time `json:"created_at"`
 }
+
+// Preset 모델
+type PresetModel struct {
+	ID          int64        `json:"id"`
+	Name        string       `json:"name"`
+	Description string       `json:"description"`
+	Items       []PresetItem `json:"items"`
+}
+
+// PresetItem 모델
+type PresetItem struct {
+	ID          int64  `json:"id"`
+	PresetID    int64  `json:"preset_id"`
+	Key         string `json:"key"`
+	Description string `json:"descprition"`
+}
+
+// category 모델
+type CategoryModel struct {
+	ID   int64  `json:"id"`
+	Name string `json:"name"`
+}
