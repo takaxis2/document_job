@@ -59,17 +59,17 @@ export default function PresetSelectionModal({
   onEditPreset,
   onDeletePreset,
 }: PresetSelectionModalProps) {
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
+  // const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState("")
   const [presetToDelete, setPresetToDelete] = useState<string | null>(null)
 
   // 카테고리 목록 추출
-  const categories = Array.from(new Set(presets.map((preset) => preset.category)))
+  // const categories = Array.from(new Set(presets.map((preset) => preset.category)))
 
   // 검색 및 카테고리 필터링
   const filteredPresets = presets.filter((preset) => {
     // 카테고리 필터
-    const matchesCategory = selectedCategory ? preset.category === selectedCategory : true
+    // const matchesCategory = selectedCategory ? preset.category === selectedCategory : true
 
     // 검색어 필터
     const searchLower = searchTerm.toLowerCase()
@@ -81,7 +81,8 @@ export default function PresetSelectionModal({
         (item) => item.key.toLowerCase().includes(searchLower) || item.value.toLowerCase().includes(searchLower),
       )
 
-    return matchesCategory && matchesSearch
+    // return matchesCategory && matchesSearch
+    return matchesSearch
   })
 
   // 삭제 확인 다이얼로그 열기

@@ -89,9 +89,9 @@ func createTables() error {
 		output_path TEXT,
 		status TEXT DEFAULT 'completed',
 		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-		FOREIGN KEY (document_id) REFERENCES documents (id),
-		FOREIGN KEY (template_id) REFERENCES templates (id),
-		FOREIGN KEY (partner_id) REFERENCES partners (id)
+		FOREIGN KEY (document_id) REFERENCES documents (id) ON DELETE CASCADE,
+		FOREIGN KEY (template_id) REFERENCES templates (id) ON DELETE SET NULL,
+		FOREIGN KEY (partner_id) REFERENCES partners (id) ON DELETE SET NULL
 	);`
 
 	createPresetModelTable := `
@@ -109,8 +109,7 @@ func createTables() error {
 		preset_id INTEGER,
 		key TEXT NOT NULL,
 		description TEXT,
-		
-		FOREIGN KEY (preset_id) REFERENCES presets (id)
+		FOREIGN KEY (preset_id) REFERENCES presets (id) ON DELETE CASCADE
 	);`
 
 	// 테이블 생성 실행
@@ -147,12 +146,14 @@ func GetDB() *sql.DB {
 
 // Document CRUD 작업
 func CreateDocument(doc *models.DocumentModel) error {
-	query := `
-		INSERT INTO documents (file_path, file_name, file_size, file_type, created_at, updated_at)
-		VALUES (?, ?, ?, ?, ?, ?)
-	`
+	tx, err := db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
 
-	result, err := db.Exec(query, doc.FilePath, doc.FileName, doc.FileSize, doc.FileType, time.Now(), time.Now())
+	query := `INSERT INTO documents (file_path, file_name, file_size, file_type, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)`
+	result, err := tx.Exec(query, doc.FilePath, doc.FileName, doc.FileSize, doc.FileType, time.Now(), time.Now())
 	if err != nil {
 		return err
 	}
@@ -161,29 +162,25 @@ func CreateDocument(doc *models.DocumentModel) error {
 	if err != nil {
 		return err
 	}
-
 	doc.ID = id
-	return nil
+
+	return tx.Commit()
 }
 
 func GetDocumentByID(id int64) (*models.DocumentModel, error) {
 	query := `SELECT id, file_path, file_name, file_size, file_type, created_at, updated_at FROM documents WHERE id = ?`
-
 	doc := &models.DocumentModel{}
 	err := db.QueryRow(query, id).Scan(
 		&doc.ID, &doc.FilePath, &doc.FileName, &doc.FileSize, &doc.FileType, &doc.CreatedAt, &doc.UpdatedAt,
 	)
-
 	if err != nil {
 		return nil, err
 	}
-
 	return doc, nil
 }
 
 func GetAllDocuments() ([]*models.DocumentModel, error) {
 	query := `SELECT id, file_path, file_name, file_size, file_type, created_at, updated_at FROM documents ORDER BY created_at DESC`
-
 	rows, err := db.Query(query)
 	if err != nil {
 		return nil, err
@@ -201,35 +198,49 @@ func GetAllDocuments() ([]*models.DocumentModel, error) {
 		}
 		documents = append(documents, doc)
 	}
-
 	return documents, nil
 }
 
 func UpdateDocument(doc *models.DocumentModel) error {
-	query := `
-		UPDATE documents 
-		SET file_path = ?, file_name = ?, file_size = ?, file_type = ?, updated_at = ?
-		WHERE id = ?
-	`
+	tx, err := db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
 
-	_, err := db.Exec(query, doc.FilePath, doc.FileName, doc.FileSize, doc.FileType, time.Now(), doc.ID)
-	return err
+	query := `UPDATE documents SET file_path = ?, file_name = ?, file_size = ?, file_type = ?, updated_at = ? WHERE id = ?`
+	_, err = tx.Exec(query, doc.FilePath, doc.FileName, doc.FileSize, doc.FileType, time.Now(), doc.ID)
+	if err != nil {
+		return err
+	}
+	return tx.Commit()
 }
 
 func DeleteDocument(id int64) error {
+	tx, err := db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
 	query := `DELETE FROM documents WHERE id = ?`
-	_, err := db.Exec(query, id)
-	return err
+	_, err = tx.Exec(query, id)
+	if err != nil {
+		return err
+	}
+	return tx.Commit()
 }
 
 // Partner CRUD 작업
 func CreatePartner(partner *models.PartnerModel) error {
-	query := `
-		INSERT INTO partners (name, company, email, phone, address, created_at, updated_at)
-		VALUES (?, ?, ?, ?, ?, ?, ?)
-	`
+	tx, err := db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
 
-	result, err := db.Exec(query, partner.Name, partner.Company, partner.Email, partner.Phone, partner.Address, time.Now(), time.Now())
+	query := `INSERT INTO partners (name, company, email, phone, address, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)`
+	result, err := tx.Exec(query, partner.Name, partner.Company, partner.Email, partner.Phone, partner.Address, time.Now(), time.Now())
 	if err != nil {
 		return err
 	}
@@ -238,29 +249,25 @@ func CreatePartner(partner *models.PartnerModel) error {
 	if err != nil {
 		return err
 	}
-
 	partner.ID = id
-	return nil
+
+	return tx.Commit()
 }
 
 func GetPartnerByID(id int64) (*models.PartnerModel, error) {
 	query := `SELECT id, name, company, email, phone, address, created_at, updated_at FROM partners WHERE id = ?`
-
 	partner := &models.PartnerModel{}
 	err := db.QueryRow(query, id).Scan(
 		&partner.ID, &partner.Name, &partner.Company, &partner.Email, &partner.Phone, &partner.Address, &partner.CreatedAt, &partner.UpdatedAt,
 	)
-
 	if err != nil {
 		return nil, err
 	}
-
 	return partner, nil
 }
 
 func GetAllPartners() ([]*models.PartnerModel, error) {
 	query := `SELECT id, name, company, email, phone, address, created_at, updated_at FROM partners ORDER BY created_at DESC`
-
 	rows, err := db.Query(query)
 	if err != nil {
 		return nil, err
@@ -278,35 +285,49 @@ func GetAllPartners() ([]*models.PartnerModel, error) {
 		}
 		partners = append(partners, partner)
 	}
-
 	return partners, nil
 }
 
 func UpdatePartner(partner *models.PartnerModel) error {
-	query := `
-		UPDATE partners 
-		SET name = ?, company = ?, email = ?, phone = ?, address = ?, updated_at = ?
-		WHERE id = ?
-	`
+	tx, err := db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
 
-	_, err := db.Exec(query, partner.Name, partner.Company, partner.Email, partner.Phone, partner.Address, time.Now(), partner.ID)
-	return err
+	query := `UPDATE partners SET name = ?, company = ?, email = ?, phone = ?, address = ?, updated_at = ? WHERE id = ?`
+	_, err = tx.Exec(query, partner.Name, partner.Company, partner.Email, partner.Phone, partner.Address, time.Now(), partner.ID)
+	if err != nil {
+		return err
+	}
+	return tx.Commit()
 }
 
 func DeletePartner(id int64) error {
+	tx, err := db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
 	query := `DELETE FROM partners WHERE id = ?`
-	_, err := db.Exec(query, id)
-	return err
+	_, err = tx.Exec(query, id)
+	if err != nil {
+		return err
+	}
+	return tx.Commit()
 }
 
 // Template CRUD 작업
 func CreateTemplate(template *models.TemplateModel) error {
-	query := `
-		INSERT INTO templates (name, description, file_path, variables, created_at, updated_at)
-		VALUES (?, ?, ?, ?, ?, ?)
-	`
+	tx, err := db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
 
-	result, err := db.Exec(query, template.Name, template.Description, template.FilePath, template.Variables, time.Now(), time.Now())
+	query := `INSERT INTO templates (name, description, file_path, variables, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)`
+	result, err := tx.Exec(query, template.Name, template.Description, template.FilePath, template.Variables, time.Now(), time.Now())
 	if err != nil {
 		return err
 	}
@@ -315,29 +336,25 @@ func CreateTemplate(template *models.TemplateModel) error {
 	if err != nil {
 		return err
 	}
-
 	template.ID = id
-	return nil
+
+	return tx.Commit()
 }
 
 func GetTemplateByID(id int64) (*models.TemplateModel, error) {
 	query := `SELECT id, name, description, file_path, variables, created_at, updated_at FROM templates WHERE id = ?`
-
 	template := &models.TemplateModel{}
 	err := db.QueryRow(query, id).Scan(
 		&template.ID, &template.Name, &template.Description, &template.FilePath, &template.Variables, &template.CreatedAt, &template.UpdatedAt,
 	)
-
 	if err != nil {
 		return nil, err
 	}
-
 	return template, nil
 }
 
 func GetAllTemplates() ([]*models.TemplateModel, error) {
 	query := `SELECT id, name, description, file_path, variables, created_at, updated_at FROM templates ORDER BY created_at DESC`
-
 	rows, err := db.Query(query)
 	if err != nil {
 		return nil, err
@@ -355,32 +372,49 @@ func GetAllTemplates() ([]*models.TemplateModel, error) {
 		}
 		templates = append(templates, template)
 	}
-
 	return templates, nil
 }
 
 func UpdateTemplate(template *models.TemplateModel) error {
-	query := `
-		UPDATE templates 
-		SET name = ?, description = ?, file_path = ?, variables = ?, updated_at = ?
-		WHERE id = ?
-	`
+	tx, err := db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
 
-	_, err := db.Exec(query, template.Name, template.Description, template.FilePath, template.Variables, time.Now(), template.ID)
-	return err
+	query := `UPDATE templates SET name = ?, description = ?, file_path = ?, variables = ?, updated_at = ? WHERE id = ?`
+	_, err = tx.Exec(query, template.Name, template.Description, template.FilePath, template.Variables, time.Now(), template.ID)
+	if err != nil {
+		return err
+	}
+	return tx.Commit()
 }
 
 func DeleteTemplate(id int64) error {
+	tx, err := db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
 	query := `DELETE FROM templates WHERE id = ?`
-	_, err := db.Exec(query, id)
-	return err
+	_, err = tx.Exec(query, id)
+	if err != nil {
+		return err
+	}
+	return tx.Commit()
 }
 
 // Preset CRUD
 func CreatePreset(preset *models.PresetModel) error {
-	query := `INSERT INTO presets (name, description, created_at, updated_at) VALUES (?, ?, ?, ?)`
+	tx, err := db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
 
-	result, err := db.Exec(query, preset.Name, preset.Description, time.Now(), time.Now())
+	query := `INSERT INTO presets (name, description, created_at, updated_at) VALUES (?, ?, ?, ?)`
+	result, err := tx.Exec(query, preset.Name, preset.Description, time.Now(), time.Now())
 	if err != nil {
 		return err
 	}
@@ -389,24 +423,37 @@ func CreatePreset(preset *models.PresetModel) error {
 	if err != nil {
 		return err
 	}
-
 	preset.ID = id
 
 	for _, item := range preset.Items {
+		item.PresetID = preset.ID
 		if err := CreatePresetItem(&item); err != nil {
 			return err
 		}
-
 	}
 
-	return nil
+	return tx.Commit()
 }
 
-func GetPresetByID(id int64) (*models.PresetModel, error) { return nil, nil }
+func GetPresetByID(id int64) (*models.PresetModel, error) {
+	preset := &models.PresetModel{}
+	query := `SELECT id, name, description, created_at, updated_at FROM presets WHERE id = ?`
+	err := db.QueryRow(query, id).Scan(&preset.ID, &preset.Name, &preset.Description)
+	if err != nil {
+		return nil, err
+	}
+
+	items, err := GetPresetItemsByPresetID(id)
+	if err != nil {
+		return nil, err
+	}
+	preset.Items = items
+
+	return preset, nil
+}
 
 func GetAllPresets() ([]*models.PresetModel, error) {
 	query := `SELECT id, name, description, created_at, updated_at FROM presets ORDER BY created_at DESC`
-
 	rows, err := db.Query(query)
 	if err != nil {
 		return nil, err
@@ -420,22 +467,77 @@ func GetAllPresets() ([]*models.PresetModel, error) {
 		if err != nil {
 			return nil, err
 		}
-		presets = append(presets, preset)
 
+		items, err := GetPresetItemsByPresetID(preset.ID)
+		if err != nil {
+			return nil, err
+		}
+		preset.Items = items
+		presets = append(presets, preset)
 	}
 
 	return presets, nil
 }
 
-func UpdatePreset(preset *models.PresetModel) error { return nil }
+func UpdatePreset(preset *models.PresetModel) error {
+	tx, err := db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback() // Rollback on error
 
-func DeletePreset(id int64) error { return nil }
+	query := `UPDATE presets SET name = ?, description = ?, updated_at = ? WHERE id = ?`
+	_, err = tx.Exec(query, preset.Name, preset.Description, time.Now(), preset.ID)
+	if err != nil {
+		return err
+	}
+
+	_, err = tx.Exec(`DELETE FROM preset_items WHERE preset_id = ?`, preset.ID)
+	if err != nil {
+		return err
+	}
+
+	itemQuery := `INSERT INTO preset_items (preset_id, key, description) VALUES (?, ?, ?)`
+	for _, item := range preset.Items {
+		item.PresetID = preset.ID
+		result, err := tx.Exec(itemQuery, item.PresetID, item.Key, item.Description)
+		if err != nil {
+			return err
+		}
+		id, err := result.LastInsertId()
+		if err != nil {
+			return err
+		}
+		item.ID = id
+	}
+
+	return tx.Commit()
+}
+
+func DeletePreset(id int64) error {
+	tx, err := db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	_, err = tx.Exec(`DELETE FROM presets WHERE id = ?`, id)
+	if err != nil {
+		return err
+	}
+	return tx.Commit()
+}
 
 // PresetItem CRUD
 func CreatePresetItem(presetItem *models.PresetItem) error {
-	query := `INSERT INTO preset_items (preset_id, key, description) VALUES (?, ?, ?)`
+	tx, err := db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
 
-	result, err := db.Exec(query, presetItem.PresetID, presetItem.Key, presetItem.Description)
+	query := `INSERT INTO preset_items (preset_id, key, description) VALUES (?, ?, ?)`
+	result, err := tx.Exec(query, presetItem.PresetID, presetItem.Key, presetItem.Description)
 	if err != nil {
 		return err
 	}
@@ -444,15 +546,67 @@ func CreatePresetItem(presetItem *models.PresetItem) error {
 		return err
 	}
 	presetItem.ID = id
-	return nil
+
+	return tx.Commit()
 }
 
-func GetPresetItemByID(id int64) (*models.PresetItem, error) { return nil, nil }
+func GetPresetItemByID(id int64) (*models.PresetItem, error) {
+	query := `SELECT id, preset_id, key, description FROM preset_items WHERE id = ?`
+	item := &models.PresetItem{}
+	err := db.QueryRow(query, id).Scan(&item.ID, &item.PresetID, &item.Key, &item.Description)
+	if err != nil {
+		return nil, err
+	}
+	return item, nil
+}
+
+func GetPresetItemsByPresetID(presetID int64) ([]models.PresetItem, error) {
+	query := `SELECT id, preset_id, key, description FROM preset_items WHERE preset_id = ?`
+	rows, err := db.Query(query, presetID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var items []models.PresetItem
+	for rows.Next() {
+		var item models.PresetItem
+		if err := rows.Scan(&item.ID, &item.PresetID, &item.Key, &item.Description); err != nil {
+			return nil, err
+		}
+		items = append(items, item)
+	}
+	return items, nil
+}
 
 func GetAllPresetItems() ([]*models.PresetItem, error) { return nil, nil }
 
-func UpdatePresetIem(presetItem *models.PresetItem) error { return nil }
+func UpdatePresetItem(presetItem *models.PresetItem) error {
+	tx, err := db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
 
-func DeletePresetIem(id int64) error { return nil }
+	query := `UPDATE preset_items SET key = ?, description = ? WHERE id = ?`
+	_, err = tx.Exec(query, presetItem.Key, presetItem.Description, presetItem.ID)
+	if err != nil {
+		return err
+	}
+	return tx.Commit()
+}
 
-//
+func DeletePresetItem(id int64) error {
+	tx, err := db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	query := `DELETE FROM preset_items WHERE id = ?`
+	_, err = tx.Exec(query, id)
+	if err != nil {
+		return err
+	}
+	return tx.Commit()
+}

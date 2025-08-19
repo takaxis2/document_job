@@ -33,6 +33,12 @@ import PresetManagementModal from "./preset-management-modal"
 import { useToast } from "@/hooks/use-toast"
 import VariableSelectionModal from "./variable-selection-modal"
 import { useFileStore } from "@/stores/fileStore"
+// import { models } from "../../wailsjs/go/models"
+
+// UI에서 치환 작업을 위해 사용하는 확장된 프리셋 아이템 타입
+// interface UIReplacementItem extends models.PresetItem {
+//   value: string;
+// }
 
 // 파일 타입에 따른 아이콘 매핑
 const fileIcons: Record<string, React.ReactNode> = {
@@ -47,80 +53,80 @@ const fileIcons: Record<string, React.ReactNode> = {
 }
 
 // 예시 프리셋 데이터
-const defaultPresets: ReplacementPreset[] = [
-  {
-    id: "preset-1",
-    name: "기본 회사 정보",
-    description: "회사명, 대표자, 사업자번호 등 기본 정보",
-    category: "회사 정보",
-    items: [
-      { key: "{{회사명}}", value: "주식회사 예시기업" },
-      { key: "{{대표자명}}", value: "홍길동" },
-      { key: "{{사업자번호}}", value: "123-45-67890" },
-      { key: "{{주소}}", value: "서울시 강남구 테헤란로 123" },
-      { key: "{{연락처}}", value: "02-1234-5678" },
-      { key: "{{이메일}}", value: "contact@example.com" },
-    ],
-  },
-  {
-    id: "preset-2",
-    name: "계약 기본 정보",
-    description: "계약일자, 계약금액 등 계약 관련 기본 정보",
-    category: "계약 정보",
-    items: [
-      { key: "{{계약번호}}", value: "CT-2025-001" },
-      { key: "{{계약일자}}", value: "2025-05-05" },
-      { key: "{{계약시작일}}", value: "2025-05-10" },
-      { key: "{{계약종료일}}", value: "2026-05-09" },
-      { key: "{{계약금액}}", value: "10,000,000" },
-      { key: "{{계약목적}}", value: "상품 공급 및 유지보수" },
-    ],
-  },
-  {
-    id: "preset-3",
-    name: "한국전자 거래처 정보",
-    description: "한국전자 거래처 관련 정보",
-    category: "거래처 정보",
-    items: [
-      { key: "{{거래처명}}", value: "한국전자 주식회사" },
-      { key: "{{거래처대표자}}", value: "김영수" },
-      { key: "{{거래처사업자번호}}", value: "234-56-78901" },
-      { key: "{{거래처주소}}", value: "서울시 서초구 서초대로 789" },
-      { key: "{{거래처연락처}}", value: "02-9876-5432" },
-      { key: "{{거래처담당자}}", value: "박지민" },
-      { key: "{{거래처담당자연락처}}", value: "010-1234-5678" },
-    ],
-  },
-  {
-    id: "preset-4",
-    name: "대한물산 거래처 정보",
-    description: "대한물산 거래처 관련 정보",
-    category: "거래처 정보",
-    items: [
-      { key: "{{거래처명}}", value: "대한물산 주식회사" },
-      { key: "{{거래처대표자}}", value: "이수진" },
-      { key: "{{거래처사업자번호}}", value: "345-67-89012" },
-      { key: "{{거래처주소}}", value: "경기도 성남시 분당구 판교로 456" },
-      { key: "{{거래처연락처}}", value: "031-8765-4321" },
-      { key: "{{거래처담당자}}", value: "정민호" },
-      { key: "{{거래처담당자연락처}}", value: "010-9876-5432" },
-    ],
-  },
-  {
-    id: "preset-5",
-    name: "견적서 기본 항목",
-    description: "견적서 관련 기본 항목",
-    category: "문서 유형",
-    items: [
-      { key: "{{견적번호}}", value: "QT-2025-001" },
-      { key: "{{견적일자}}", value: "2025-05-05" },
-      { key: "{{견적유효기간}}", value: "30일" },
-      { key: "{{납품기한}}", value: "2025-06-05" },
-      { key: "{{결제조건}}", value: "계약금 50%, 잔금 50%" },
-      { key: "{{담당자}}", value: "김영수" },
-    ],
-  },
-]
+// const defaultPresets: ReplacementPreset[] = [
+//   {
+//     id: "preset-1",
+//     name: "기본 회사 정보",
+//     description: "회사명, 대표자, 사업자번호 등 기본 정보",
+//     category: "회사 정보",
+//     items: [
+//       { key: "{{회사명}}", value: "주식회사 예시기업" },
+//       { key: "{{대표자명}}", value: "홍길동" },
+//       { key: "{{사업자번호}}", value: "123-45-67890" },
+//       { key: "{{주소}}", value: "서울시 강남구 테헤란로 123" },
+//       { key: "{{연락처}}", value: "02-1234-5678" },
+//       { key: "{{이메일}}", value: "contact@example.com" },
+//     ],
+//   },
+//   {
+//     id: "preset-2",
+//     name: "계약 기본 정보",
+//     description: "계약일자, 계약금액 등 계약 관련 기본 정보",
+//     category: "계약 정보",
+//     items: [
+//       { key: "{{계약번호}}", value: "CT-2025-001" },
+//       { key: "{{계약일자}}", value: "2025-05-05" },
+//       { key: "{{계약시작일}}", value: "2025-05-10" },
+//       { key: "{{계약종료일}}", value: "2026-05-09" },
+//       { key: "{{계약금액}}", value: "10,000,000" },
+//       { key: "{{계약목적}}", value: "상품 공급 및 유지보수" },
+//     ],
+//   },
+//   {
+//     id: "preset-3",
+//     name: "한국전자 거래처 정보",
+//     description: "한국전자 거래처 관련 정보",
+//     category: "거래처 정보",
+//     items: [
+//       { key: "{{거래처명}}", value: "한국전자 주식회사" },
+//       { key: "{{거래처대표자}}", value: "김영수" },
+//       { key: "{{거래처사업자번호}}", value: "234-56-78901" },
+//       { key: "{{거래처주소}}", value: "서울시 서초구 서초대로 789" },
+//       { key: "{{거래처연락처}}", value: "02-9876-5432" },
+//       { key: "{{거래처담당자}}", value: "박지민" },
+//       { key: "{{거래처담당자연락처}}", value: "010-1234-5678" },
+//     ],
+//   },
+//   {
+//     id: "preset-4",
+//     name: "대한물산 거래처 정보",
+//     description: "대한물산 거래처 관련 정보",
+//     category: "거래처 정보",
+//     items: [
+//       { key: "{{거래처명}}", value: "대한물산 주식회사" },
+//       { key: "{{거래처대표자}}", value: "이수진" },
+//       { key: "{{거래처사업자번호}}", value: "345-67-89012" },
+//       { key: "{{거래처주소}}", value: "경기도 성남시 분당구 판교로 456" },
+//       { key: "{{거래처연락처}}", value: "031-8765-4321" },
+//       { key: "{{거래처담당자}}", value: "정민호" },
+//       { key: "{{거래처담당자연락처}}", value: "010-9876-5432" },
+//     ],
+//   },
+//   {
+//     id: "preset-5",
+//     name: "견적서 기본 항목",
+//     description: "견적서 관련 기본 항목",
+//     category: "문서 유형",
+//     items: [
+//       { key: "{{견적번호}}", value: "QT-2025-001" },
+//       { key: "{{견적일자}}", value: "2025-05-05" },
+//       { key: "{{견적유효기간}}", value: "30일" },
+//       { key: "{{납품기한}}", value: "2025-06-05" },
+//       { key: "{{결제조건}}", value: "계약금 50%, 잔금 50%" },
+//       { key: "{{담당자}}", value: "김영수" },
+//     ],
+//   },
+// ]
 
 // 파일 확장자에 따른 아이콘 가져오기
 const getFileIcon = (filename: string) => {
@@ -538,7 +544,7 @@ const StringReplacementPanel = ({
   const { toast } = useToast()
 
   // 프리셋 상태 관리
-  const [presets, setPresets] = useState<ReplacementPreset[]>(defaultPresets)
+  const [presets, setPresets] = useState<ReplacementPreset[]>([])
 
   // 변수 선택 모달 상태
   const [isVariableModalOpen, setIsVariableModalOpen] = useState(false)
@@ -631,7 +637,7 @@ const StringReplacementPanel = ({
   // 프리셋 선택 핸들러
   const handleSelectPreset = (preset: ReplacementPreset) => {
     // 기존 항목 중 프리셋에 없는 키를 가진 항목들
-    const existingItems = replacements.filter((item) => !preset.items.some((presetItem) => presetItem.key === item.key))
+    // const existingItems = replacements.filter((item) => !preset.items.some((presetItem) => presetItem.key === item.key))
 
     // 프리셋 항목과 기존 항목 병합
     // const mergedItems = [...preset.items, ...existingItems]

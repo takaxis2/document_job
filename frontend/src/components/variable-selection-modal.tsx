@@ -86,18 +86,18 @@ export default function VariableSelectionModal({
   onSelectVariables,
   existingVariables,
 }: VariableSelectionModalProps) {
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
+  // const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedVariables, setSelectedVariables] = useState<string[]>([])
   const [customVariable, setCustomVariable] = useState("")
 
   // 카테고리 목록 추출
-  const categories = Array.from(new Set(predefinedVariables.map((variable) => variable.category)))
+  // const categories = Array.from(new Set(predefinedVariables.map((variable) => variable.category)))
 
   // 검색 및 카테고리 필터링
   const filteredVariables = predefinedVariables.filter((variable) => {
     // 카테고리 필터
-    const matchesCategory = selectedCategory ? variable.category === selectedCategory : true
+    // const matchesCategory = selectedCategory ? variable.category === selectedCategory : true
 
     // 검색어 필터
     const searchLower = searchTerm.toLowerCase()
@@ -106,7 +106,8 @@ export default function VariableSelectionModal({
       variable.key.toLowerCase().includes(searchLower) ||
       variable.description.toLowerCase().includes(searchLower)
 
-    return matchesCategory && matchesSearch
+    // return matchesCategory && matchesSearch
+    return matchesSearch
   })
 
   // 모달이 열릴 때 이미 존재하는 변수들을 선택 상태로 설정
@@ -179,7 +180,7 @@ export default function VariableSelectionModal({
 
         <div className="flex flex-1 overflow-hidden">
           {/* 카테고리 사이드바 */}
-          <div className="w-1/4 border-r pr-4">
+          {/* <div className="w-1/4 border-r pr-4">
             <div
               className={`px-3 py-2 rounded-md cursor-pointer mb-1 ${
                 selectedCategory === null
@@ -203,7 +204,7 @@ export default function VariableSelectionModal({
                 {category}
               </div>
             ))}
-          </div>
+          </div> */}
 
           {/* 변수 목록 */}
           <div className="flex-1 pl-4">

@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+// import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import type { ReplacementItem, ReplacementPreset } from "./preset-selection-modal"
 import { Save, Trash2 } from "lucide-react"
 
@@ -43,8 +43,8 @@ export default function PresetManagementModal({
   )
 
   // 새 카테고리 입력 상태
-  const [newCategory, setNewCategory] = useState("")
-  const [showNewCategoryInput, setShowNewCategoryInput] = useState(false)
+  // const [newCategory, setNewCategory] = useState("")
+  // const [showNewCategoryInput, setShowNewCategoryInput] = useState(false)
 
   // 입력값 변경 핸들러
   const handleInputChange = (field: keyof ReplacementPreset, value: string) => {
@@ -55,23 +55,23 @@ export default function PresetManagementModal({
   }
 
   // 카테고리 변경 핸들러
-  const handleCategoryChange = (value: string) => {
-    if (value === "new") {
-      setShowNewCategoryInput(true)
-    } else {
-      setShowNewCategoryInput(false)
-      handleInputChange("category", value)
-    }
-  }
+  // const handleCategoryChange = (value: string) => {
+  //   if (value === "new") {
+  //     setShowNewCategoryInput(true)
+  //   } else {
+  //     setShowNewCategoryInput(false)
+  //     handleInputChange("category", value)
+  //   }
+  // }
 
   // 새 카테고리 적용 핸들러
-  const applyNewCategory = () => {
-    if (newCategory.trim()) {
-      handleInputChange("category", newCategory.trim())
-      setShowNewCategoryInput(false)
-      setNewCategory("")
-    }
-  }
+  // const applyNewCategory = () => {
+  //   if (newCategory.trim()) {
+  //     handleInputChange("category", newCategory.trim())
+  //     setShowNewCategoryInput(false)
+  //     setNewCategory("")
+  //   }
+  // }
 
   // 치환 항목 변경 핸들러
   const handleItemChange = (index: number, field: keyof ReplacementItem, value: string) => {
@@ -169,7 +169,7 @@ export default function PresetManagementModal({
               />
             </div>
 
-            <div className="space-y-2">
+            {/* <div className="space-y-2">
               <Label htmlFor="preset-category">카테고리</Label>
               {!showNewCategoryInput ? (
                 <Select value={preset.category} onValueChange={handleCategoryChange}>
@@ -201,7 +201,7 @@ export default function PresetManagementModal({
                   </Button>
                 </div>
               )}
-            </div>
+            </div> */}
 
             {/* 치환 항목 목록 */}
             <div className="space-y-3">

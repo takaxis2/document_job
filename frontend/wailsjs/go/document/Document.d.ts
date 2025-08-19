@@ -9,7 +9,9 @@ export function CreateDocument(arg1:models.DocumentModel):Promise<void>;
 
 export function CreatePartner(arg1:models.PartnerModel):Promise<void>;
 
-export function CreatePreset(arg1:string,arg2:string,arg3:string,arg4:Record<string, string>):Promise<preset.Preset>;
+export function CreatePreset(arg1:models.PresetModel):Promise<void>;
+
+export function CreatePresetItem(arg1:models.PresetItem):Promise<void>;
 
 export function CreateTemplate(arg1:models.TemplateModel):Promise<void>;
 
@@ -17,7 +19,9 @@ export function DeleteDocument(arg1:number):Promise<void>;
 
 export function DeletePartner(arg1:number):Promise<void>;
 
-export function DeletePreset(arg1:string):Promise<void>;
+export function DeletePreset(arg1:number):Promise<void>;
+
+export function DeletePresetItem(arg1:number):Promise<void>;
 
 export function DeleteTemplate(arg1:number):Promise<void>;
 
@@ -27,7 +31,7 @@ export function GetAllDocuments():Promise<Array<models.DocumentModel>>;
 
 export function GetAllPartners():Promise<Array<models.PartnerModel>>;
 
-export function GetAllPresets():Promise<Array<preset.Preset>>;
+export function GetAllPresets():Promise<Array<models.PresetModel>>;
 
 export function GetAllTemplates():Promise<Array<models.TemplateModel>>;
 
@@ -37,11 +41,7 @@ export function GetFolderTree(arg1:string):Promise<Array<document.FileSystemItem
 
 export function GetPartnerByID(arg1:number):Promise<models.PartnerModel>;
 
-export function GetPresetByID(arg1:string):Promise<preset.Preset>;
-
-export function GetPresetCategories():Promise<Array<string>>;
-
-export function GetPresetStatistics():Promise<Record<string, any>>;
+export function GetPresetByID(arg1:number):Promise<models.PresetModel>;
 
 export function GetReplacementStatistics(arg1:string,arg2:Record<string, string>):Promise<Record<string, number>>;
 
@@ -53,8 +53,6 @@ export function ProcessSelectedFiles(arg1:Array<string>,arg2:string,arg3:Record<
 
 export function ReplaceVariables(arg1:string,arg2:Record<string, string>):Promise<string>;
 
-export function SearchPresets(arg1:string):Promise<Array<preset.Preset>>;
-
 export function SelectDirectory():Promise<string>;
 
 export function Startup(arg1:context.Context):Promise<void>;
@@ -63,7 +61,9 @@ export function UpdateDocument(arg1:models.DocumentModel):Promise<void>;
 
 export function UpdatePartner(arg1:models.PartnerModel):Promise<void>;
 
-export function UpdatePreset(arg1:string,arg2:string,arg3:string,arg4:string,arg5:Record<string, string>):Promise<preset.Preset>;
+export function UpdatePreset(arg1:models.PresetModel):Promise<void>;
+
+export function UpdatePresetItem(arg1:models.PresetItem):Promise<void>;
 
 export function UpdateTemplate(arg1:models.TemplateModel):Promise<void>;
 

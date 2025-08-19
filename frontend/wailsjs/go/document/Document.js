@@ -10,8 +10,12 @@ export function CreatePartner(arg1) {
   return window['go']['document']['Document']['CreatePartner'](arg1);
 }
 
-export function CreatePreset(arg1, arg2, arg3, arg4) {
-  return window['go']['document']['Document']['CreatePreset'](arg1, arg2, arg3, arg4);
+export function CreatePreset(arg1) {
+  return window['go']['document']['Document']['CreatePreset'](arg1);
+}
+
+export function CreatePresetItem(arg1) {
+  return window['go']['document']['Document']['CreatePresetItem'](arg1);
 }
 
 export function CreateTemplate(arg1) {
@@ -28,6 +32,10 @@ export function DeletePartner(arg1) {
 
 export function DeletePreset(arg1) {
   return window['go']['document']['Document']['DeletePreset'](arg1);
+}
+
+export function DeletePresetItem(arg1) {
+  return window['go']['document']['Document']['DeletePresetItem'](arg1);
 }
 
 export function DeleteTemplate(arg1) {
@@ -70,14 +78,6 @@ export function GetPresetByID(arg1) {
   return window['go']['document']['Document']['GetPresetByID'](arg1);
 }
 
-export function GetPresetCategories() {
-  return window['go']['document']['Document']['GetPresetCategories']();
-}
-
-export function GetPresetStatistics() {
-  return window['go']['document']['Document']['GetPresetStatistics']();
-}
-
 export function GetReplacementStatistics(arg1, arg2) {
   return window['go']['document']['Document']['GetReplacementStatistics'](arg1, arg2);
 }
@@ -98,10 +98,6 @@ export function ReplaceVariables(arg1, arg2) {
   return window['go']['document']['Document']['ReplaceVariables'](arg1, arg2);
 }
 
-export function SearchPresets(arg1) {
-  return window['go']['document']['Document']['SearchPresets'](arg1);
-}
-
 export function SelectDirectory() {
   return window['go']['document']['Document']['SelectDirectory']();
 }
@@ -118,8 +114,12 @@ export function UpdatePartner(arg1) {
   return window['go']['document']['Document']['UpdatePartner'](arg1);
 }
 
-export function UpdatePreset(arg1, arg2, arg3, arg4, arg5) {
-  return window['go']['document']['Document']['UpdatePreset'](arg1, arg2, arg3, arg4, arg5);
+export function UpdatePreset(arg1) {
+  return window['go']['document']['Document']['UpdatePreset'](arg1);
+}
+
+export function UpdatePresetItem(arg1) {
+  return window['go']['document']['Document']['UpdatePresetItem'](arg1);
 }
 
 export function UpdateTemplate(arg1) {

@@ -9,14 +9,11 @@ import (
 )
 
 type Document struct {
-	ctx           context.Context
-	presetManager *preset.PresetManager
+	ctx context.Context
 }
 
 func NewDocument() *Document {
-	return &Document{
-		presetManager: preset.NewPresetManager(),
-	}
+	return &Document{}
 }
 
 func (d *Document) Startup(ctx context.Context) {
@@ -107,7 +104,7 @@ func (d *Document) DeleteTemplate(id int64) error {
 	return db.DeleteTemplate(id)
 }
 
-// Preset 관련 메서드들
+// Preset 교체 메서드들. 필요한가?
 func (d *Document) ExtractVariables(content string) ([]preset.VariableInfo, error) {
 	return preset.ExtractVariables(content)
 }
@@ -128,35 +125,36 @@ func (d *Document) GetReplacementStatistics(content string, replacements map[str
 	return preset.GetReplacementStatistics(content, replacements)
 }
 
-// Preset Manager 관련 메서드들
-func (d *Document) CreatePreset(name, description, category string, variables map[string]string) (*preset.Preset, error) {
-	return d.presetManager.CreatePreset(name, description, category, variables)
+// Preset 관련 메서드들
+func (d *Document) CreatePreset(preset *models.PresetModel) error {
+	return db.CreatePreset(preset)
 }
 
-func (d *Document) GetAllPresets() []*preset.Preset {
-	return d.presetManager.GetAllPresets()
+func (d *Document) GetAllPresets() ([]*models.PresetModel, error) {
+	return db.GetAllPresets()
 }
 
-func (d *Document) GetPresetByID(id string) (*preset.Preset, error) {
-	return d.presetManager.GetPreset(id)
+func (d *Document) GetPresetByID(id int64) (*models.PresetModel, error) {
+	return db.GetPresetByID(id)
 }
 
-func (d *Document) UpdatePreset(id string, name, description, category string, variables map[string]string) (*preset.Preset, error) {
-	return d.presetManager.UpdatePreset(id, name, description, category, variables)
+func (d *Document) UpdatePreset(preset *models.PresetModel) error {
+	return db.UpdatePreset(preset)
 }
 
-func (d *Document) DeletePreset(id string) error {
-	return d.presetManager.DeletePreset(id)
+func (d *Document) DeletePreset(id int64) error {
+	return db.DeletePreset(id)
 }
 
-func (d *Document) SearchPresets(query string) []*preset.Preset {
-	return d.presetManager.SearchPresets(query)
+// PresetItem 관련 메서드들
+func (d *Document) CreatePresetItem(presetItem *models.PresetItem) error {
+	return db.CreatePresetItem(presetItem)
 }
 
-func (d *Document) GetPresetCategories() []string {
-	return d.presetManager.GetCategories()
+func (d *Document) UpdatePresetItem(presetItem *models.PresetItem) error {
+	return db.UpdatePresetItem(presetItem)
 }
 
-func (d *Document) GetPresetStatistics() map[string]interface{} {
-	return d.presetManager.GetPresetStatistics()
+func (d *Document) DeletePresetItem(id int64) error {
+	return db.DeletePresetItem(id)
 }
