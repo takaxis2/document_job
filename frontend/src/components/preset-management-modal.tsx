@@ -12,16 +12,18 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 // import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import type { ReplacementItem, ReplacementPreset } from "./preset-selection-modal"
+import type { ReplacementItem } from "./preset-selection-modal"
 import { Save, Trash2 } from "lucide-react"
+
+import type { UIPresetModel } from "../stores/presetStore"
 
 // 프리셋 생성/수정 모달 컴포넌트
 interface PresetManagementModalProps {
   isOpen: boolean
   onClose: () => void
-  onSave: (preset: ReplacementPreset) => void
-  editingPreset: ReplacementPreset | null
-  existingCategories: string[]
+  onSave: (preset: UIPresetModel) => void
+  editingPreset: UIPresetModel | null
+  // existingCategories: string[]
 }
 
 export default function PresetManagementModal({
@@ -29,15 +31,15 @@ export default function PresetManagementModal({
   onClose,
   onSave,
   editingPreset,
-  existingCategories,
+  // existingCategories,
 }: PresetManagementModalProps) {
   // 프리셋 상태
-  const [preset, setPreset] = useState<ReplacementPreset>(
+  const [preset, setPreset] = useState<UIPresetModel>(
     editingPreset || {
-      id: `preset-${Date.now()}`,
+      id: 1, // 임시로 해놓음
       name: "",
       description: "",
-      category: existingCategories[0] || "회사 정보",
+      // category: existingCategories[0] || "회사 정보",
       items: [],
     },
   )
@@ -47,7 +49,7 @@ export default function PresetManagementModal({
   // const [showNewCategoryInput, setShowNewCategoryInput] = useState(false)
 
   // 입력값 변경 핸들러
-  const handleInputChange = (field: keyof ReplacementPreset, value: string) => {
+  const handleInputChange = (field: keyof UIPresetModel, value: string) => {
     setPreset((prev) => ({
       ...prev,
       [field]: value,
@@ -88,9 +90,11 @@ export default function PresetManagementModal({
 
   // 치환 항목 추가 핸들러
   const handleAddItem = () => {
+    // 치환항목(presetItem) 추가 로직 필요
+    // 임시로 암거나 집어 넣음
     setPreset((prev) => ({
       ...prev,
-      items: [...prev.items, { key: "", value: "" }],
+      items: [...prev.items, { key: "", value: "", id:9999, preset_id:8888, descprition:"temp" }],
     }))
   }
 
@@ -98,7 +102,7 @@ export default function PresetManagementModal({
   const handleRemoveItem = (index: number) => {
     const newItems = [...preset.items]
     newItems.splice(index, 1)
-    setPreset((prev) => ({
+    setPreset((prev) =>({
       ...prev,
       items: newItems,
     }))
@@ -112,10 +116,10 @@ export default function PresetManagementModal({
       return
     }
 
-    if (!preset.category.trim()) {
-      alert("카테고리를 선택해주세요.")
-      return
-    }
+    // if (!preset.category.trim()) {
+    //   alert("카테고리를 선택해주세요.")
+    //   return
+    // }
 
     // 빈 항목 제거
     const filteredItems = preset.items.filter((item) => item.key.trim() !== "")
@@ -126,10 +130,10 @@ export default function PresetManagementModal({
     }
 
     // 저장
-    onSave({
+    onSave(({
       ...preset,
       items: filteredItems,
-    })
+    }))
     onClose()
   }
 

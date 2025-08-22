@@ -28,12 +28,13 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import TemplateReplacementModal from "./template-replacement-modal"
-import PresetSelectionModal, { type ReplacementPreset } from "./preset-selection-modal"
+import PresetSelectionModal from "./preset-selection-modal"
 import PresetManagementModal from "./preset-management-modal"
 import { useToast } from "@/hooks/use-toast"
 import VariableSelectionModal from "./variable-selection-modal"
 import { useFileStore } from "@/stores/fileStore"
 // import { models } from "../../wailsjs/go/models"
+import type { UIPresetModel } from "@/stores/presetStore"
 
 // UI에서 치환 작업을 위해 사용하는 확장된 프리셋 아이템 타입
 // interface UIReplacementItem extends models.PresetItem {
@@ -544,7 +545,7 @@ const StringReplacementPanel = ({
   const { toast } = useToast()
 
   // 프리셋 상태 관리
-  const [presets, setPresets] = useState<ReplacementPreset[]>([])
+  const [presets, setPresets] = useState<UIPresetModel[]>([])
 
   // 변수 선택 모달 상태
   const [isVariableModalOpen, setIsVariableModalOpen] = useState(false)
@@ -563,7 +564,7 @@ const StringReplacementPanel = ({
   const [isPresetModalOpen, setIsPresetModalOpen] = useState(false)
   const [isPresetManagementModalOpen, setIsPresetManagementModalOpen] = useState(false)
   const [lastAppliedPreset, setLastAppliedPreset] = useState<string | null>(null)
-  const [editingPreset, setEditingPreset] = useState<ReplacementPreset | null>(null)
+  const [editingPreset, setEditingPreset] = useState<UIPresetModel | null>(null)
 
   // 치환 값 변경 핸들러
   const handleValueChange = (index: number, value: string) => {
@@ -635,7 +636,7 @@ const StringReplacementPanel = ({
   }
 
   // 프리셋 선택 핸들러
-  const handleSelectPreset = (preset: ReplacementPreset) => {
+  const handleSelectPreset = (preset: UIPresetModel) => {
     // 기존 항목 중 프리셋에 없는 키를 가진 항목들
     // const existingItems = replacements.filter((item) => !preset.items.some((presetItem) => presetItem.key === item.key))
 
@@ -670,14 +671,14 @@ const StringReplacementPanel = ({
   }
 
   // 프리셋 수정 핸들러
-  const handleEditPreset = (preset: ReplacementPreset) => {
+  const handleEditPreset = (preset: UIPresetModel) => {
     setEditingPreset(preset)
     setIsPresetManagementModalOpen(true)
     setIsPresetModalOpen(false)
   }
 
   // 프리셋 삭제 핸들러
-  const handleDeletePreset = (presetId: string) => {
+  const handleDeletePreset = (presetId: number) => {
     setPresets(presets.filter((preset) => preset.id !== presetId))
     toast({
       title: "프리셋 삭제됨",
@@ -686,7 +687,7 @@ const StringReplacementPanel = ({
   }
 
   // 프리셋 저장 핸들러
-  const handleSavePreset = (preset: ReplacementPreset) => {
+  const handleSavePreset = (preset: UIPresetModel) => {
     if (editingPreset) {
       // 기존 프리셋 수정
       setPresets(presets.map((p) => (p.id === preset.id ? preset : p)))
@@ -718,18 +719,18 @@ const StringReplacementPanel = ({
       return
     }
 
+    // 여기도 임시, 나중에 store에서 가져와야함
     setEditingPreset({
-      id: `preset-${Date.now()}`,
+      id:111,
       name: "",
       description: "",
-      category: "사용자 정의",
-      items: validItems,
+      items: validItems.map((item, index) => ({ key: item.key, value: item.value, id: index+999, preset_id:index+888, descprition:"temp"})),
     })
     setIsPresetManagementModalOpen(true)
   }
 
   // 카테고리 목록 추출
-  const categories = Array.from(new Set(presets.map((preset) => preset.category)))
+  // const categories = Array.from(new Set(presets.map((preset) => preset.category)))
 
   if (selectedFiles.length === 0) {
     return (
@@ -833,7 +834,7 @@ const StringReplacementPanel = ({
         onClose={() => setIsPresetManagementModalOpen(false)}
         onSave={handleSavePreset}
         editingPreset={editingPreset}
-        existingCategories={categories}
+        // existingCategories={categories}
       />
     </div>
   )

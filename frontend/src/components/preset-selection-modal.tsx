@@ -23,6 +23,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import type { UIPresetModel } from "../stores/presetStore"
 
 // 치환 항목 타입 정의
 export interface ReplacementItem {
@@ -31,23 +32,23 @@ export interface ReplacementItem {
 }
 
 // 프리셋 타입 정의
-export interface ReplacementPreset {
-  id: string
-  name: string
-  description: string
-  category: string
-  items: ReplacementItem[]
-}
+// export interface ReplacementPreset {
+//   id: string
+//   name: string
+//   description: string
+//   category: string
+//   items: ReplacementItem[]
+// }
 
 // 프리셋 선택 모달 컴포넌트
 interface PresetSelectionModalProps {
   isOpen: boolean
   onClose: () => void
-  onSelectPreset: (preset: ReplacementPreset) => void
-  presets: ReplacementPreset[]
+  onSelectPreset: (preset: UIPresetModel) => void
+  presets: UIPresetModel[]
   onCreatePreset: () => void
-  onEditPreset: (preset: ReplacementPreset) => void
-  onDeletePreset: (presetId: string) => void
+  onEditPreset: (preset: UIPresetModel) => void
+  onDeletePreset: (presetId: number) => void
 }
 
 export default function PresetSelectionModal({
@@ -61,7 +62,7 @@ export default function PresetSelectionModal({
 }: PresetSelectionModalProps) {
   // const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState("")
-  const [presetToDelete, setPresetToDelete] = useState<string | null>(null)
+  const [presetToDelete, setPresetToDelete] = useState<number | null>(null)
 
   // 카테고리 목록 추출
   // const categories = Array.from(new Set(presets.map((preset) => preset.category)))
@@ -78,15 +79,17 @@ export default function PresetSelectionModal({
       preset.name.toLowerCase().includes(searchLower) ||
       preset.description.toLowerCase().includes(searchLower) ||
       preset.items.some(
-        (item) => item.key.toLowerCase().includes(searchLower) || item.value.toLowerCase().includes(searchLower),
+        (item) => item.key.toLowerCase().includes(searchLower) 
+        // || item.value.toLowerCase().includes(searchLower),
       )
+      
 
     // return matchesCategory && matchesSearch
     return matchesSearch
   })
 
   // 삭제 확인 다이얼로그 열기
-  const handleDeleteClick = (e: React.MouseEvent, presetId: string) => {
+  const handleDeleteClick = (e: React.MouseEvent, presetId: number) => {
     e.stopPropagation()
     setPresetToDelete(presetId)
   }
@@ -100,7 +103,7 @@ export default function PresetSelectionModal({
   }
 
   // 수정 버튼 클릭
-  const handleEditClick = (e: React.MouseEvent, preset: ReplacementPreset) => {
+  const handleEditClick = (e: React.MouseEvent, preset: UIPresetModel) => {
     e.stopPropagation()
     onEditPreset(preset)
   }
@@ -177,9 +180,9 @@ export default function PresetSelectionModal({
                             <p className="text-sm text-gray-500">{preset.description}</p>
                           </div>
                           <div className="flex items-center gap-1">
-                            <span className="text-xs px-2 py-1 bg-gray-100 rounded-full dark:bg-gray-800">
+                            {/* <span className="text-xs px-2 py-1 bg-gray-100 rounded-full dark:bg-gray-800">
                               {preset.category}
-                            </span>
+                            </span> */}
                             <Button
                               variant="ghost"
                               size="icon"
