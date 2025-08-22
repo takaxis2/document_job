@@ -12,10 +12,9 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 // import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import type { ReplacementItem } from "./preset-selection-modal"
 import { Save, Trash2 } from "lucide-react"
 
-import type { UIPresetModel } from "../stores/presetStore"
+import type { UIPresetItem, UIPresetModel } from "../stores/presetStore"
 
 // 프리셋 생성/수정 모달 컴포넌트
 interface PresetManagementModalProps {
@@ -76,7 +75,7 @@ export default function PresetManagementModal({
   // }
 
   // 치환 항목 변경 핸들러
-  const handleItemChange = (index: number, field: keyof ReplacementItem, value: string) => {
+  const handleItemChange = (index: number, field: keyof UIPresetItem, value: string) => {
     const newItems = [...preset.items]
     newItems[index] = {
       ...newItems[index],
@@ -94,7 +93,7 @@ export default function PresetManagementModal({
     // 임시로 암거나 집어 넣음
     setPreset((prev) => ({
       ...prev,
-      items: [...prev.items, { key: "", value: "", id:9999, preset_id:8888, descprition:"temp" }],
+      items: [...prev.items, { key: "", value: "", id:9999, preset_id:8888, description:"temp" }],
     }))
   }
 

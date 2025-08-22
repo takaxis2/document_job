@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { models } from "../../wailsjs/go/models"
-import { GetAllPresets, GetPresetByID } from 'wailsjs/go/document/Document'
+import { GetAllPresets, GetPresetByID } from '../../wailsjs/go/document/Document'
+import { LogPrint } from '../../wailsjs/runtime/runtime';
 
 // UI에서 치환 작업을 위해 사용하는 확장된 프리셋 아이템 타입
 
@@ -50,10 +51,12 @@ export const usePresetStore = create<PresetStoreState>((set) => ({
 
     getPresets: async () => {
         try {
+            LogPrint("프리셋을 불러오기.")
             const presets = await GetAllPresets();
+            // LogPrint("프리셋 : "+JSON.stringify(presets, null, 2))
             const uiPresets: UIPresetModel[] = presets.map(preset => ({
                 ...preset,
-                items: preset.items.map(item => ({
+                items: preset.items!.map(item => ({
                     ...item,
                     value: ""
                 }))
@@ -61,7 +64,7 @@ export const usePresetStore = create<PresetStoreState>((set) => ({
 
             set({selectedPresets : uiPresets})
         } catch (error) {
-            
+            LogPrint(`${error}`)
         }
     }
 

@@ -62,7 +62,7 @@ type PresetItem struct {
 	ID          int64  `json:"id"`
 	PresetID    int64  `json:"preset_id"`
 	Key         string `json:"key"`
-	Description string `json:"descprition"`
+	Description string `json:"description"`
 }
 
 // category 모델

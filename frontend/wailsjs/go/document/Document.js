@@ -6,10 +6,6 @@ export function CreateDocument(arg1) {
   return window['go']['document']['Document']['CreateDocument'](arg1);
 }
 
-export function CreatePartner(arg1) {
-  return window['go']['document']['Document']['CreatePartner'](arg1);
-}
-
 export function CreatePreset(arg1) {
   return window['go']['document']['Document']['CreatePreset'](arg1);
 }
@@ -18,16 +14,8 @@ export function CreatePresetItem(arg1) {
   return window['go']['document']['Document']['CreatePresetItem'](arg1);
 }
 
-export function CreateTemplate(arg1) {
-  return window['go']['document']['Document']['CreateTemplate'](arg1);
-}
-
 export function DeleteDocument(arg1) {
   return window['go']['document']['Document']['DeleteDocument'](arg1);
-}
-
-export function DeletePartner(arg1) {
-  return window['go']['document']['Document']['DeletePartner'](arg1);
 }
 
 export function DeletePreset(arg1) {
@@ -38,10 +26,6 @@ export function DeletePresetItem(arg1) {
   return window['go']['document']['Document']['DeletePresetItem'](arg1);
 }
 
-export function DeleteTemplate(arg1) {
-  return window['go']['document']['Document']['DeleteTemplate'](arg1);
-}
-
 export function ExtractVariables(arg1) {
   return window['go']['document']['Document']['ExtractVariables'](arg1);
 }
@@ -50,16 +34,8 @@ export function GetAllDocuments() {
   return window['go']['document']['Document']['GetAllDocuments']();
 }
 
-export function GetAllPartners() {
-  return window['go']['document']['Document']['GetAllPartners']();
-}
-
 export function GetAllPresets() {
   return window['go']['document']['Document']['GetAllPresets']();
-}
-
-export function GetAllTemplates() {
-  return window['go']['document']['Document']['GetAllTemplates']();
 }
 
 export function GetDocumentByID(arg1) {
@@ -70,20 +46,12 @@ export function GetFolderTree(arg1) {
   return window['go']['document']['Document']['GetFolderTree'](arg1);
 }
 
-export function GetPartnerByID(arg1) {
-  return window['go']['document']['Document']['GetPartnerByID'](arg1);
-}
-
 export function GetPresetByID(arg1) {
   return window['go']['document']['Document']['GetPresetByID'](arg1);
 }
 
 export function GetReplacementStatistics(arg1, arg2) {
   return window['go']['document']['Document']['GetReplacementStatistics'](arg1, arg2);
-}
-
-export function GetTemplateByID(arg1) {
-  return window['go']['document']['Document']['GetTemplateByID'](arg1);
 }
 
 export function GetUnreplacedVariables(arg1, arg2) {
@@ -110,20 +78,12 @@ export function UpdateDocument(arg1) {
   return window['go']['document']['Document']['UpdateDocument'](arg1);
 }
 
-export function UpdatePartner(arg1) {
-  return window['go']['document']['Document']['UpdatePartner'](arg1);
-}
-
 export function UpdatePreset(arg1) {
   return window['go']['document']['Document']['UpdatePreset'](arg1);
 }
 
 export function UpdatePresetItem(arg1) {
   return window['go']['document']['Document']['UpdatePresetItem'](arg1);
-}
-
-export function UpdateTemplate(arg1) {
-  return window['go']['document']['Document']['UpdateTemplate'](arg1);
 }
 
 export function ValidateVariables(arg1, arg2) {

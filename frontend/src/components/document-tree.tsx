@@ -5,7 +5,6 @@ import { Checkbox } from "@/components/ui/checkbox"
 import type React from "react"
 
 import { useState, useEffect } from "react"
-// import { SelectDirectory } from "../../wailsjs/go/document/Document"
 import {
   ChevronRight,
   ChevronDown,
@@ -724,7 +723,7 @@ const StringReplacementPanel = ({
       id:111,
       name: "",
       description: "",
-      items: validItems.map((item, index) => ({ key: item.key, value: item.value, id: index+999, preset_id:index+888, descprition:"temp"})),
+      items: validItems.map((item, index) => ({ key: item.key, value: item.value, id: index+999, preset_id:index+888, description:"temp"})),
     })
     setIsPresetManagementModalOpen(true)
   }
@@ -822,7 +821,7 @@ const StringReplacementPanel = ({
         isOpen={isPresetModalOpen}
         onClose={() => setIsPresetModalOpen(false)}
         onSelectPreset={handleSelectPreset}
-        presets={presets}
+        // presets={presets}
         onCreatePreset={handleCreatePreset}
         onEditPreset={handleEditPreset}
         onDeletePreset={handleDeletePreset}

@@ -1,6 +1,6 @@
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import {
   Dialog,
   DialogContent,
@@ -23,29 +23,15 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import type { UIPresetModel } from "../stores/presetStore"
+import { usePresetStore, type UIPresetModel } from "../stores/presetStore"
 
-// 치환 항목 타입 정의
-export interface ReplacementItem {
-  key: string
-  value: string
-}
-
-// 프리셋 타입 정의
-// export interface ReplacementPreset {
-//   id: string
-//   name: string
-//   description: string
-//   category: string
-//   items: ReplacementItem[]
-// }
 
 // 프리셋 선택 모달 컴포넌트
 interface PresetSelectionModalProps {
   isOpen: boolean
   onClose: () => void
   onSelectPreset: (preset: UIPresetModel) => void
-  presets: UIPresetModel[]
+  // presets: UIPresetModel[]
   onCreatePreset: () => void
   onEditPreset: (preset: UIPresetModel) => void
   onDeletePreset: (presetId: number) => void
@@ -55,7 +41,7 @@ export default function PresetSelectionModal({
   isOpen,
   onClose,
   onSelectPreset,
-  presets,
+  // presets, // 얘는 필요 없지
   onCreatePreset,
   onEditPreset,
   onDeletePreset,
@@ -63,12 +49,21 @@ export default function PresetSelectionModal({
   // const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState("")
   const [presetToDelete, setPresetToDelete] = useState<number | null>(null)
+  const { selectedPresets, getPresets} = usePresetStore()
+
+  useEffect(() => {
+    const loadPresets = async () => {
+      await getPresets()
+    }
+    if(isOpen) loadPresets()
+  }, [isOpen, getPresets])
+
 
   // 카테고리 목록 추출
   // const categories = Array.from(new Set(presets.map((preset) => preset.category)))
 
   // 검색 및 카테고리 필터링
-  const filteredPresets = presets.filter((preset) => {
+  const filteredPresets = selectedPresets.filter((preset) => {
     // 카테고리 필터
     // const matchesCategory = selectedCategory ? preset.category === selectedCategory : true
 

@@ -87,57 +87,11 @@ export namespace models {
 		    return a;
 		}
 	}
-	export class PartnerModel {
-	    id: number;
-	    name: string;
-	    company: string;
-	    email: string;
-	    phone: string;
-	    address: string;
-	    // Go type: time
-	    created_at: any;
-	    // Go type: time
-	    updated_at: any;
-	
-	    static createFrom(source: any = {}) {
-	        return new PartnerModel(source);
-	    }
-	
-	    constructor(source: any = {}) {
-	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.id = source["id"];
-	        this.name = source["name"];
-	        this.company = source["company"];
-	        this.email = source["email"];
-	        this.phone = source["phone"];
-	        this.address = source["address"];
-	        this.created_at = this.convertValues(source["created_at"], null);
-	        this.updated_at = this.convertValues(source["updated_at"], null);
-	    }
-	
-		convertValues(a: any, classs: any, asMap: boolean = false): any {
-		    if (!a) {
-		        return a;
-		    }
-		    if (a.slice && a.map) {
-		        return (a as any[]).map(elem => this.convertValues(elem, classs));
-		    } else if ("object" === typeof a) {
-		        if (asMap) {
-		            for (const key of Object.keys(a)) {
-		                a[key] = new classs(a[key]);
-		            }
-		            return a;
-		        }
-		        return new classs(a);
-		    }
-		    return a;
-		}
-	}
 	export class PresetItem {
 	    id: number;
 	    preset_id: number;
 	    key: string;
-	    descprition: string;
+	    description: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new PresetItem(source);
@@ -148,7 +102,7 @@ export namespace models {
 	        this.id = source["id"];
 	        this.preset_id = source["preset_id"];
 	        this.key = source["key"];
-	        this.descprition = source["descprition"];
+	        this.description = source["description"];
 	    }
 	}
 	export class PresetModel {
@@ -167,50 +121,6 @@ export namespace models {
 	        this.name = source["name"];
 	        this.description = source["description"];
 	        this.items = this.convertValues(source["items"], PresetItem);
-	    }
-	
-		convertValues(a: any, classs: any, asMap: boolean = false): any {
-		    if (!a) {
-		        return a;
-		    }
-		    if (a.slice && a.map) {
-		        return (a as any[]).map(elem => this.convertValues(elem, classs));
-		    } else if ("object" === typeof a) {
-		        if (asMap) {
-		            for (const key of Object.keys(a)) {
-		                a[key] = new classs(a[key]);
-		            }
-		            return a;
-		        }
-		        return new classs(a);
-		    }
-		    return a;
-		}
-	}
-	export class TemplateModel {
-	    id: number;
-	    name: string;
-	    description: string;
-	    file_path: string;
-	    variables: string;
-	    // Go type: time
-	    created_at: any;
-	    // Go type: time
-	    updated_at: any;
-	
-	    static createFrom(source: any = {}) {
-	        return new TemplateModel(source);
-	    }
-	
-	    constructor(source: any = {}) {
-	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.id = source["id"];
-	        this.name = source["name"];
-	        this.description = source["description"];
-	        this.file_path = source["file_path"];
-	        this.variables = source["variables"];
-	        this.created_at = this.convertValues(source["created_at"], null);
-	        this.updated_at = this.convertValues(source["updated_at"], null);
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {

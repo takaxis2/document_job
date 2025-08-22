@@ -453,14 +453,14 @@ func GetPresetByID(id int64) (*models.PresetModel, error) {
 }
 
 func GetAllPresets() ([]*models.PresetModel, error) {
-	query := `SELECT id, name, description, created_at, updated_at FROM presets ORDER BY created_at DESC`
+	query := `SELECT id, name, description FROM presets ORDER BY created_at DESC`
 	rows, err := db.Query(query)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var presets []*models.PresetModel
+	presets := make([]*models.PresetModel, 0)
 	for rows.Next() {
 		preset := &models.PresetModel{}
 		err := rows.Scan(&preset.ID, &preset.Name, &preset.Description)
@@ -475,6 +475,7 @@ func GetAllPresets() ([]*models.PresetModel, error) {
 		preset.Items = items
 		presets = append(presets, preset)
 	}
+	log.Println(presets)
 
 	return presets, nil
 }
@@ -568,7 +569,7 @@ func GetPresetItemsByPresetID(presetID int64) ([]models.PresetItem, error) {
 	}
 	defer rows.Close()
 
-	var items []models.PresetItem
+	items := make([]models.PresetItem, 0)
 	for rows.Next() {
 		var item models.PresetItem
 		if err := rows.Scan(&item.ID, &item.PresetID, &item.Key, &item.Description); err != nil {

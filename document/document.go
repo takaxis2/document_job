@@ -63,46 +63,46 @@ func (d *Document) DeleteDocument(id int64) error {
 }
 
 // Partner 관련 메서드들
-func (d *Document) GetAllPartners() ([]*models.PartnerModel, error) {
-	return db.GetAllPartners()
-}
+// func (d *Document) GetAllPartners() ([]*models.PartnerModel, error) {
+// 	return db.GetAllPartners()
+// }
 
-func (d *Document) CreatePartner(partner *models.PartnerModel) error {
-	return db.CreatePartner(partner)
-}
+// func (d *Document) CreatePartner(partner *models.PartnerModel) error {
+// 	return db.CreatePartner(partner)
+// }
 
-func (d *Document) GetPartnerByID(id int64) (*models.PartnerModel, error) {
-	return db.GetPartnerByID(id)
-}
+// func (d *Document) GetPartnerByID(id int64) (*models.PartnerModel, error) {
+// 	return db.GetPartnerByID(id)
+// }
 
-func (d *Document) UpdatePartner(partner *models.PartnerModel) error {
-	return db.UpdatePartner(partner)
-}
+// func (d *Document) UpdatePartner(partner *models.PartnerModel) error {
+// 	return db.UpdatePartner(partner)
+// }
 
-func (d *Document) DeletePartner(id int64) error {
-	return db.DeletePartner(id)
-}
+// func (d *Document) DeletePartner(id int64) error {
+// 	return db.DeletePartner(id)
+// }
 
 // Template 관련 메서드들
-func (d *Document) GetAllTemplates() ([]*models.TemplateModel, error) {
-	return db.GetAllTemplates()
-}
+// func (d *Document) GetAllTemplates() ([]*models.TemplateModel, error) {
+// 	return db.GetAllTemplates()
+// }
 
-func (d *Document) CreateTemplate(template *models.TemplateModel) error {
-	return db.CreateTemplate(template)
-}
+// func (d *Document) CreateTemplate(template *models.TemplateModel) error {
+// 	return db.CreateTemplate(template)
+// }
 
-func (d *Document) GetTemplateByID(id int64) (*models.TemplateModel, error) {
-	return db.GetTemplateByID(id)
-}
+// func (d *Document) GetTemplateByID(id int64) (*models.TemplateModel, error) {
+// 	return db.GetTemplateByID(id)
+// }
 
-func (d *Document) UpdateTemplate(template *models.TemplateModel) error {
-	return db.UpdateTemplate(template)
-}
+// func (d *Document) UpdateTemplate(template *models.TemplateModel) error {
+// 	return db.UpdateTemplate(template)
+// }
 
-func (d *Document) DeleteTemplate(id int64) error {
-	return db.DeleteTemplate(id)
-}
+// func (d *Document) DeleteTemplate(id int64) error {
+// 	return db.DeleteTemplate(id)
+// }
 
 // Preset 교체 메서드들. 필요한가?
 func (d *Document) ExtractVariables(content string) ([]preset.VariableInfo, error) {

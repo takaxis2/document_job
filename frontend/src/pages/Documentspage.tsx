@@ -6,7 +6,7 @@ import DocumentTree from "../components/document-tree"
 import FolderPathModal from "@/components/folder-path-modal"
 import { useFileStore } from "@/stores/fileStore"
 import { GetFolderTree } from "../../wailsjs/go/document/Document"
-import { LogPrint } from "../../wailsjs/runtime/runtime"
+// import { LogPrint } from "../../wailsjs/runtime/runtime"
 
 export default function DocumentsPage() {
   // const [folderPath, setFolderPath] = useState<string | null>(null)
@@ -30,7 +30,7 @@ export default function DocumentsPage() {
 
     // 이 시점에 폴더트리 탐색을 시작해야 한다.
     const folderTree = await GetFolderTree(path)
-    LogPrint("폴더 트리 로드 완료: " + JSON.stringify(folderTree, null, 2))
+    // LogPrint("폴더 트리 로드 완료: " + JSON.stringify(folderTree, null, 2))
     setFolderTree(folderTree)
     
   }
