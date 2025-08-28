@@ -32,8 +32,8 @@ import PresetManagementModal from "./preset-management-modal"
 import { useToast } from "@/hooks/use-toast"
 import VariableSelectionModal from "./variable-selection-modal"
 import { useFileStore } from "@/stores/fileStore"
-// import { models } from "../../wailsjs/go/models"
 import type { UIPresetModel } from "@/stores/presetStore"
+import { ProcessSelectedFiles } from "../../wailsjs/go/document/Document"
 
 // UI에서 치환 작업을 위해 사용하는 확장된 프리셋 아이템 타입
 // interface UIReplacementItem extends models.PresetItem {
@@ -564,6 +564,7 @@ const StringReplacementPanel = ({
   const [isPresetManagementModalOpen, setIsPresetManagementModalOpen] = useState(false)
   const [lastAppliedPreset, setLastAppliedPreset] = useState<string | null>(null)
   const [editingPreset, setEditingPreset] = useState<UIPresetModel | null>(null)
+  const {folderPath} = useFileStore()
 
   // 치환 값 변경 핸들러
   const handleValueChange = (index: number, value: string) => {
@@ -576,7 +577,8 @@ const StringReplacementPanel = ({
   const handleApplyReplacements = () => {
     if (selectedFiles.length === 0) return
 
-    const filledReplacements = replacements.filter((item) => item.value.trim() !== "")
+    const filledReplacements: Record<string, string>[] = replacements.filter((item) => item.value.trim() !== "")
+
     if (filledReplacements.length === 0) {
       toast({
         title: "변환할 항목이 없습니다",
@@ -585,6 +587,21 @@ const StringReplacementPanel = ({
       })
       return
     }
+    const replacementsRecord = Object.fromEntries(filledReplacements.map((item) => [item.key, item.value]))
+
+
+    const filepaths = selectedFiles.map((file) => file.path)
+
+
+    // golang 치환함수 호출
+    const result = ProcessSelectedFiles(filepaths,folderPath+"/result", replacementsRecord)
+    if(!result){
+      toast({
+        title:"변환 오류",
+        description: `${result}`
+      })
+    }
+
 
     toast({
       title: "문자열 치환 완료",

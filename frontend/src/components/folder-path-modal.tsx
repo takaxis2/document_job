@@ -11,6 +11,7 @@ import { Alert, AlertDescription, AlertTitle } from "./ui/alert"
 import { Terminal } from "lucide-react"
 import { useToast } from "../hooks/use-toast"
 import { SelectDirectory } from "../../wailsjs/go/document/Document"
+import { useFileStore } from "../stores/fileStore"
 
 
 interface FolderPathModalProps {
@@ -21,13 +22,13 @@ interface FolderPathModalProps {
 }
 
 export default function FolderPathModal({ isOpen, onClose, onSavePath, initialPath = "" }: FolderPathModalProps) {
-  const [pathInput, setPathInput] = useState(initialPath)
+  const {folderPath, setCurrentPath} = useFileStore()
   const [error, setError] = useState<string | null>(null)
   const { toast } = useToast()
 
   useEffect(() => {
     if (isOpen) {
-      setPathInput(initialPath)
+      setCurrentPath(initialPath)
       setError(null)
     }
   }, [isOpen, initialPath])
@@ -37,7 +38,7 @@ export default function FolderPathModal({ isOpen, onClose, onSavePath, initialPa
     try {
       const selectedPath = await SelectDirectory();
       if (selectedPath) {
-        setPathInput(selectedPath);
+        setCurrentPath(selectedPath);
       }
     } catch (error) {
       console.error("폴더 선택 중 오류 발생:", error);
@@ -45,7 +46,7 @@ export default function FolderPathModal({ isOpen, onClose, onSavePath, initialPa
   };
 
   const handleSave = () => {
-    if (!pathInput.trim()) {
+    if (!folderPath.trim()) {
       setError("폴더 경로를 입력해주세요.")
       toast({
         title: "경로 설정 실패",
@@ -54,7 +55,7 @@ export default function FolderPathModal({ isOpen, onClose, onSavePath, initialPa
       })
       return
     }
-    if (pathInput.trim().length < 3) {
+    if (folderPath.trim().length < 3) {
       setError("폴더 경로는 최소 3자 이상이어야 합니다.")
       toast({
         title: "경로 설정 실패",
@@ -63,16 +64,16 @@ export default function FolderPathModal({ isOpen, onClose, onSavePath, initialPa
       })
       return
     }
-    onSavePath(pathInput.trim())
+    onSavePath(folderPath.trim())
     setError(null)
     toast({
       title: "경로 설정 완료",
-      description: `폴더 경로가 '${pathInput.trim()}'(으)로 설정되었습니다.`,
+      description: `폴더 경로가 '${folderPath.trim()}'(으)로 설정되었습니다.`,
     })
   }
 
   const handleExampleClick = (examplePath: string) => {
-    setPathInput(examplePath)
+    setCurrentPath(examplePath)
     setError(null)
   }
 
@@ -98,8 +99,8 @@ export default function FolderPathModal({ isOpen, onClose, onSavePath, initialPa
             </Label>
             <Input
               id="folderPath"
-              value={pathInput}
-              onChange={(e) => setPathInput(e.target.value)}
+              value={folderPath}
+              onChange={(e) => setCurrentPath(e.target.value)}
               onKeyDown={handleKeyDown}
               className="col-span-3"
               placeholder="/public/sample-files/contracts"

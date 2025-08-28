@@ -77,7 +77,7 @@ func ReplaceVariablesInFileName(fileName string, replacements map[string]string)
 // GetUnreplacedVariables 치환되지 않은 변수들을 찾습니다
 func GetUnreplacedVariables(content string, replacements map[string]string) []string {
 	// {{변수명}} 형태의 정규식 패턴
-	re := regexp.MustCompile(`{{([^{}]+)}}`)
+	re := regexp.MustCompile((`{{([^{}]+)}}`))
 
 	// 모든 매치를 찾기
 	matches := re.FindAllString(content, -1)
@@ -105,7 +105,7 @@ func GetUnreplacedVariables(content string, replacements map[string]string) []st
 // GetReplacementStatistics 치환 통계를 반환합니다
 func GetReplacementStatistics(content string, replacements map[string]string) map[string]int {
 	// {{변수명}} 형태의 정규식 패턴
-	re := regexp.MustCompile(`{{([^{}]+)}}`)
+	re := regexp.MustCompile((`{{([^{}]+)}}`))
 
 	// 모든 매치를 찾기
 	matches := re.FindAllString(content, -1)
