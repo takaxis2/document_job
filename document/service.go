@@ -226,8 +226,8 @@ func processFile(filePath string, newPath string, replacements map[string]string
 	ext := strings.ToLower(filepath.Ext(filePath))
 
 	switch ext {
-	case ".doc":
 	case ".docx":
+	case ".doc":
 		return processWordFile(filePath, newPath, replacements)
 	case ".xlsx":
 		return processExcelFile(filePath, newPath, replacements)
@@ -244,27 +244,34 @@ func processWordFile(filePath string, newPath string, replacements map[string]st
 	}
 	defer f.Close()
 
-	content := f.GetFile(filepath.Base(filePath))
-	contentStr := string(content)
+	// content := f.GetFile(filepath.Base(filePath))
+	// contentStr := string(content)
 
 	// preset 패키지 사용하여 변수 치환
-	contentStr, err = preset.ReplaceVariables(contentStr, replacements)
-	if err != nil {
-		return fmt.Errorf("변수 치환 오류: %v", err)
-	}
+	// contentStr, err = preset.ReplaceVariables(contentStr, replacements)
+	// if err != nil {
+	// 	return fmt.Errorf("변수 치환 오류: %v", err)
+	// }
+	// content = []byte(contentStr)
 
-	content = []byte(contentStr)
+	for key, value := range replacements {
+		placeholder := fmt.Sprint("{{%s}}", key)
+		err = f.Replace(placeholder, value)
+		if err != nil {
+			return fmt.Errorf("변수 치환 오류: %v", err)
+		}
+	}
 
 	newFileName, err := processFileName(newPath, replacements)
 	if err != nil {
 		newFileName = newPath
 	}
 
-	f.SetFile(newFileName, content)
+	// f.SetFile(newFileName, content)
 
 	err = f.WriteToFile(newFileName)
 	if err != nil {
-		return err
+		return fmt.Errorf("수정된 파일 저장 오류 : %v", err)
 	}
 
 	return nil

@@ -34,6 +34,7 @@ import VariableSelectionModal from "./variable-selection-modal"
 import { useFileStore } from "@/stores/fileStore"
 import type { UIPresetModel } from "@/stores/presetStore"
 import { ProcessSelectedFiles } from "../../wailsjs/go/document/Document"
+import { LogPrint } from "../../wailsjs/runtime/runtime"
 
 // UI에서 치환 작업을 위해 사용하는 확장된 프리셋 아이템 타입
 // interface UIReplacementItem extends models.PresetItem {
@@ -574,7 +575,7 @@ const StringReplacementPanel = ({
   }
 
   // 치환 적용 핸들러
-  const handleApplyReplacements = () => {
+  const handleApplyReplacements = async() => {
     if (selectedFiles.length === 0) return
 
     const filledReplacements: Record<string, string>[] = replacements.filter((item) => item.value.trim() !== "")
@@ -591,16 +592,25 @@ const StringReplacementPanel = ({
 
 
     const filepaths = selectedFiles.map((file) => file.path)
+    LogPrint("filepaths: "+JSON.stringify(filepaths))
+    LogPrint("replacements: "+JSON.stringify(replacementsRecord))
+
 
 
     // golang 치환함수 호출
-    const result = ProcessSelectedFiles(filepaths,folderPath+"/result", replacementsRecord)
-    if(!result){
-      toast({
-        title:"변환 오류",
-        description: `${result}`
-      })
+    try {
+      
+      await ProcessSelectedFiles(filepaths,folderPath+"/result", replacementsRecord)
+    } catch (error) {
+      LogPrint(JSON.stringify(error))
     }
+    // if(!result){
+    //   LogPrint("에러 : "+result)
+    //   toast({
+    //     title:"변환 오류",
+    //     description: `${result}`
+    //   })
+    // }
 
 
     toast({
