@@ -575,7 +575,7 @@ const StringReplacementPanel = ({
   }
 
   // 치환 적용 핸들러
-  const handleApplyReplacements = async() => {
+  const handleApplyReplacements = () => {
     if (selectedFiles.length === 0) return
 
     const filledReplacements: Record<string, string>[] = replacements.filter((item) => item.value.trim() !== "")
@@ -599,8 +599,8 @@ const StringReplacementPanel = ({
 
     // golang 치환함수 호출
     try {
+      ProcessSelectedFiles(filepaths,folderPath+"/result", replacementsRecord)
       
-      await ProcessSelectedFiles(filepaths,folderPath+"/result", replacementsRecord)
     } catch (error) {
       LogPrint(JSON.stringify(error))
     }

@@ -165,6 +165,9 @@ func processSelectedFiles(filePaths []string, destination string, replacements m
 	if len(filePaths) == 0 {
 		return fmt.Errorf("처리할 파일이 없습니다")
 	}
+	// runtime.LogPrint(ctx, "처리할 파일 개수: "+fmt.Sprint(len(filePaths)))
+	// runtime.LogPrint(ctx, "결과물 저장 경로: "+destination)
+	// runtime.LogPrint(ctx, "변수 치환:"+fmt.Sprint(replacements))
 
 	// 공통 상위 폴더 찾기
 	commonPath := findCommonPrefix(filePaths)
@@ -193,6 +196,7 @@ func processSelectedFiles(filePaths []string, destination string, replacements m
 		if err := processFile(filePath, dstPath, replacements); err != nil {
 			return fmt.Errorf("파일 처리 오류 (%s): %v", filePath, err)
 		}
+
 	}
 
 	return nil
@@ -226,23 +230,26 @@ func processFile(filePath string, newPath string, replacements map[string]string
 	ext := strings.ToLower(filepath.Ext(filePath))
 
 	switch ext {
-	case ".docx":
 	case ".doc":
+	case ".docx":
 		return processWordFile(filePath, newPath, replacements)
 	case ".xlsx":
 		return processExcelFile(filePath, newPath, replacements)
 	default:
 	}
+
 	return nil
 }
 
 func processWordFile(filePath string, newPath string, replacements map[string]string) error {
 
+	fmt.Println("파일 열기 시작")
 	f, err := docx.Open(filePath)
 	if err != nil {
 		return fmt.Errorf("docx 파일 열기 오류 : %v", err)
 	}
 	defer f.Close()
+	fmt.Println("파일 열기 완료")
 
 	// content := f.GetFile(filepath.Base(filePath))
 	// contentStr := string(content)
@@ -254,8 +261,10 @@ func processWordFile(filePath string, newPath string, replacements map[string]st
 	// }
 	// content = []byte(contentStr)
 
+	fmt.Println("변수 치환 시작")
+
 	for key, value := range replacements {
-		placeholder := fmt.Sprint("{{%s}}", key)
+		placeholder := fmt.Sprint("{{%s}}", key) //Sprintf를 써야한다는데 그럼 파일이 안만들어짐
 		err = f.Replace(placeholder, value)
 		if err != nil {
 			return fmt.Errorf("변수 치환 오류: %v", err)
