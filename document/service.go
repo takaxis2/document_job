@@ -11,10 +11,14 @@ import (
 
 	"doc_job/preset"
 
-	"github.com/lukasjarosch/go-docx"
+	"github.com/takaxis2/go-docx"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"github.com/xuri/excelize/v2"
 )
+
+type TemplateProcessor interface {
+	Process(content []byte, data map[string]string) ([]byte, error)
+}
 
 func selectDirectory(ctx context.Context) (string, error) {
 	result, err := runtime.OpenDirectoryDialog(ctx, runtime.OpenDialogOptions{
@@ -165,9 +169,6 @@ func processSelectedFiles(filePaths []string, destination string, replacements m
 	if len(filePaths) == 0 {
 		return fmt.Errorf("처리할 파일이 없습니다")
 	}
-	// runtime.LogPrint(ctx, "처리할 파일 개수: "+fmt.Sprint(len(filePaths)))
-	// runtime.LogPrint(ctx, "결과물 저장 경로: "+destination)
-	// runtime.LogPrint(ctx, "변수 치환:"+fmt.Sprint(replacements))
 
 	// 공통 상위 폴더 찾기
 	commonPath := findCommonPrefix(filePaths)
@@ -243,45 +244,70 @@ func processFile(filePath string, newPath string, replacements map[string]string
 
 func processWordFile(filePath string, newPath string, replacements map[string]string) error {
 
-	fmt.Println("파일 열기 시작")
-	f, err := docx.Open(filePath)
+	docx.ChangeOpenCloseDelimiter("{{", "}}")
+
+	doc, err := docx.Open(filePath)
 	if err != nil {
-		return fmt.Errorf("docx 파일 열기 오류 : %v", err)
+		return fmt.Errorf("docx 파일 열기 오류: %v", err)
 	}
-	defer f.Close()
-	fmt.Println("파일 열기 완료")
 
-	// content := f.GetFile(filepath.Base(filePath))
-	// contentStr := string(content)
-
-	// preset 패키지 사용하여 변수 치환
-	// contentStr, err = preset.ReplaceVariables(contentStr, replacements)
+	// 1. os.Open으로 파일을 열고, Stat()으로 파일 정보를 가져옵니다.
+	// readFile, err := os.Open(filePath)
 	// if err != nil {
-	// 	return fmt.Errorf("변수 치환 오류: %v", err)
+	// 	return fmt.Errorf("파일 열기 오류: %v", err)
 	// }
-	// content = []byte(contentStr)
+	// defer readFile.Close()
 
-	fmt.Println("변수 치환 시작")
+	// fileinfo, err := readFile.Stat()
+	// if err != nil {
+	// 	return fmt.Errorf("파일 정보 읽기 오류: %v", err)
+	// }
 
-	for key, value := range replacements {
-		placeholder := fmt.Sprint("{{%s}}", key) //Sprintf를 써야한다는데 그럼 파일이 안만들어짐
-		err = f.Replace(placeholder, value)
-		if err != nil {
-			return fmt.Errorf("변수 치환 오류: %v", err)
-		}
-	}
+	// // 2. docx.Parse에 파일 리더와 크기를 전달하여 docx 객체를 생성합니다.
+	// doc, err := docx.Parse(readFile, fileinfo.Size())
+	// if err != nil {
+	// 	return fmt.Errorf("docx 파일 파싱 오류: %v", err)
+	// }
 
+	// for _, item := range doc.Document.Body.Items {
+	// 	if para, ok := item.(*docx.Paragraph); ok {
+	// 		fmt.Println("para")
+	// 		for _, run := range para.Children {
+	// 			fmt.Println("run")
+	// 			if text, ok := run.(*docx.Text); ok {
+	// 				// Replace the text. You can perform any string operation here.
+	// 				fmt.Println("text.Text : " + text.Text)
+	// 				newVal, err := preset.ReplaceVariablesInText(text.Text, replacements)
+	// 				if err != nil {
+	// 					return fmt.Errorf("변수 치환 오류: %v", err)
+	// 				}
+
+	// 				text.Text = newVal
+	// 			}
+	// 		}
+	// 	}
+	// }
+
+	// 4. 새 파일명 처리
 	newFileName, err := processFileName(newPath, replacements)
 	if err != nil {
-		newFileName = newPath
+		newFileName = newPath // 오류 발생 시 원본 경로 사용
 	}
 
-	// f.SetFile(newFileName, content)
+	// 5. 파일 저장
+	// w, err := os.Create(newFileName)
+	// if err != nil {
+	// 	return fmt.Errorf("파일 생성 오류: %v", err)
+	// }
+	// defer w.Close()
 
-	err = f.WriteToFile(newFileName)
+	// _, err = doc.WriteTo(w)
+
 	if err != nil {
-		return fmt.Errorf("수정된 파일 저장 오류 : %v", err)
+		return fmt.Errorf("수정된 파일 저장 오류: %v", err)
 	}
+
+	fmt.Println("변수 치환 완료: " + newFileName)
 
 	return nil
 }

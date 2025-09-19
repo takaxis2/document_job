@@ -52,3 +52,8 @@ variable.json 파일
 3. 필요한 폴더 생성
 - 결과물 저장 전에 해당 경로의 폴더가 없으면 미리 생성합니다.
 4.파일 저장
+
+
+processWordDoc 수정해야함
+- github.com/ZeroHawkeye/wordZero
+- github.com/fumiama/go-docx

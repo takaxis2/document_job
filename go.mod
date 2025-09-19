@@ -5,8 +5,8 @@ go 1.23.0
 toolchain go1.24.5
 
 require (
-	github.com/lukasjarosch/go-docx v0.5.0
 	github.com/mattn/go-sqlite3 v1.14.30
+	github.com/unidoc/unioffice v1.39.0
 	github.com/wailsapp/wails/v2 v2.10.2
 	github.com/xuri/excelize/v2 v2.9.1
 )
@@ -32,6 +32,7 @@ require (
 	github.com/richardlehane/msoleps v1.0.4 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/samber/lo v1.51.0 // indirect
+	github.com/takaxis2/go-docx v0.0.0-20250919084420-7897efeca246 // indirect
 	github.com/tiendc/go-deepcopy v1.6.0 // indirect
 	github.com/tkrajina/go-reflector v0.5.8 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
