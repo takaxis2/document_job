@@ -1,6 +1,6 @@
 module doc_job
 
-go 1.23.0
+go 1.24.0
 
 toolchain go1.24.5
 
@@ -10,6 +10,8 @@ require (
 	github.com/wailsapp/wails/v2 v2.10.2
 	github.com/xuri/excelize/v2 v2.9.1
 )
+
+require github.com/takaxis2/go-docx v0.0.0-20250920150026-f51740288b7a
 
 require (
 	github.com/bep/debounce v1.2.1 // indirect
@@ -32,7 +34,6 @@ require (
 	github.com/richardlehane/msoleps v1.0.4 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/samber/lo v1.51.0 // indirect
-	github.com/takaxis2/go-docx v0.0.0-20250919084420-7897efeca246 // indirect
 	github.com/tiendc/go-deepcopy v1.6.0 // indirect
 	github.com/tkrajina/go-reflector v0.5.8 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
@@ -41,10 +42,10 @@ require (
 	github.com/wailsapp/mimetype v1.4.1 // indirect
 	github.com/xuri/efp v0.0.1 // indirect
 	github.com/xuri/nfp v0.0.1 // indirect
-	golang.org/x/crypto v0.40.0 // indirect
-	golang.org/x/net v0.42.0 // indirect
-	golang.org/x/sys v0.34.0 // indirect
-	golang.org/x/text v0.27.0 // indirect
+	golang.org/x/crypto v0.42.0 // indirect
+	golang.org/x/net v0.44.0 // indirect
+	golang.org/x/sys v0.36.0 // indirect
+	golang.org/x/text v0.29.0 // indirect
 )
 
 // replace github.com/wailsapp/wails/v2 v2.10.2 => C:\Users\axis1\go\pkg\mod

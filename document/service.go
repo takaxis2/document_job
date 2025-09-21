@@ -250,43 +250,19 @@ func processWordFile(filePath string, newPath string, replacements map[string]st
 	if err != nil {
 		return fmt.Errorf("docx 파일 열기 오류: %v", err)
 	}
+	defer doc.Close()
 
-	// 1. os.Open으로 파일을 열고, Stat()으로 파일 정보를 가져옵니다.
-	// readFile, err := os.Open(filePath)
-	// if err != nil {
-	// 	return fmt.Errorf("파일 열기 오류: %v", err)
-	// }
-	// defer readFile.Close()
+	placeholderMap := docx.PlaceholderMap{}
 
-	// fileinfo, err := readFile.Stat()
-	// if err != nil {
-	// 	return fmt.Errorf("파일 정보 읽기 오류: %v", err)
-	// }
+	fmt.Println("변수 치환 시작")
+	for repl := range replacements {
+		placeholderMap.Add(repl, replacements[repl])
+	}
 
-	// // 2. docx.Parse에 파일 리더와 크기를 전달하여 docx 객체를 생성합니다.
-	// doc, err := docx.Parse(readFile, fileinfo.Size())
-	// if err != nil {
-	// 	return fmt.Errorf("docx 파일 파싱 오류: %v", err)
-	// }
-
-	// for _, item := range doc.Document.Body.Items {
-	// 	if para, ok := item.(*docx.Paragraph); ok {
-	// 		fmt.Println("para")
-	// 		for _, run := range para.Children {
-	// 			fmt.Println("run")
-	// 			if text, ok := run.(*docx.Text); ok {
-	// 				// Replace the text. You can perform any string operation here.
-	// 				fmt.Println("text.Text : " + text.Text)
-	// 				newVal, err := preset.ReplaceVariablesInText(text.Text, replacements)
-	// 				if err != nil {
-	// 					return fmt.Errorf("변수 치환 오류: %v", err)
-	// 				}
-
-	// 				text.Text = newVal
-	// 			}
-	// 		}
-	// 	}
-	// }
+	err = doc.ReplaceAll(placeholderMap)
+	if err != nil {
+		return fmt.Errorf("변수 치환 오류: %v", err)
+	}
 
 	// 4. 새 파일명 처리
 	newFileName, err := processFileName(newPath, replacements)
@@ -294,16 +270,8 @@ func processWordFile(filePath string, newPath string, replacements map[string]st
 		newFileName = newPath // 오류 발생 시 원본 경로 사용
 	}
 
-	// 5. 파일 저장
-	// w, err := os.Create(newFileName)
-	// if err != nil {
-	// 	return fmt.Errorf("파일 생성 오류: %v", err)
-	// }
-	// defer w.Close()
-
-	// _, err = doc.WriteTo(w)
-
-	if err != nil {
+	// 수정된 파일 저장
+	if err := doc.WriteToFile(newFileName); err != nil {
 		return fmt.Errorf("수정된 파일 저장 오류: %v", err)
 	}
 
