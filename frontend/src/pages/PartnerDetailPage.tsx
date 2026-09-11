@@ -348,53 +348,72 @@ export default function PartnerDetailPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-3">
-          <Button variant="outline" size="icon" onClick={() => navigate("/partners")}>
-            <ArrowLeft className="h-4 w-4" />
+    <div className="space-y-3">
+      {/* Desktop Toolbar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-2.5 border-b border-border gap-2">
+        <div className="flex items-center space-x-2.5">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="h-8 px-2.5 text-xs"
+            onClick={() => navigate("/partners")}
+          >
+            <ArrowLeft className="h-3.5 w-3.5 mr-1" />
+            목록으로
           </Button>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight flex items-center">
-              <Building2 className="mr-2 h-7 w-7 text-primary" />
-              {editedPartner.name}
-            </h1>
-            <p className="text-muted-foreground">거래처 상세 정보와 하위 시설들을 통합 관리합니다.</p>
+            <div className="flex items-center space-x-2">
+              <h1 className="text-xl font-bold tracking-tight text-foreground">
+                {editedPartner.name}
+              </h1>
+              <span className="font-mono text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded border border-border">
+                {editedPartner.businessNumber}
+              </span>
+            </div>
+            <p className="text-xs text-muted-foreground">거래처 마스터 정보와 하위 시설/담당자를 통합 관리합니다.</p>
           </div>
         </div>
-        <div className="flex gap-2">
+
+        <div className="flex items-center space-x-2">
           {!isEditing ? (
             <>
-              <Button onClick={() => setIsEditing(true)}>정보 수정</Button>
-              <Button variant="destructive" onClick={() => setIsDeleteDialogOpen(true)}>
-                <Trash2 className="mr-2 h-4 w-4" />
-                거래처 삭제
+              <Button size="sm" className="h-8 text-xs" onClick={() => setIsEditing(true)}>
+                정보 수정
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="h-8 text-xs text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40"
+                onClick={() => setIsDeleteDialogOpen(true)}
+              >
+                <Trash2 className="mr-1.5 h-3.5 w-3.5" />
+                삭제
               </Button>
             </>
           ) : (
             <>
-              <Button onClick={handleSave}>
-                <Save className="mr-2 h-4 w-4" />
-                변경사항 저장
+              <Button size="sm" className="h-8 text-xs" onClick={handleSave}>
+                <Save className="mr-1.5 h-3.5 w-3.5" />
+                저장 완료
               </Button>
-              <Button variant="ghost" onClick={() => setIsEditing(false)}>
-                수정 취소
+              <Button variant="ghost" size="sm" className="h-8 text-xs" onClick={() => setIsEditing(false)}>
+                취소
               </Button>
             </>
           )}
         </div>
       </div>
 
-      <Card className="shadow-sm">
-        <CardContent className="p-6">
+      <Card className="shadow-none border border-border rounded-md bg-card">
+        <CardContent className="p-4">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid grid-cols-6 w-full mb-6">
-              <TabsTrigger value="info">기본 정보</TabsTrigger>
-              <TabsTrigger value="notes">특이사항 ({(editedPartner.notesHistory || []).length})</TabsTrigger>
-              <TabsTrigger value="contacts">담당자 ({editedPartner.contacts.length})</TabsTrigger>
-              <TabsTrigger value="facilities">시설 관리 ({editedPartner.facilities?.length || 0})</TabsTrigger>
-              <TabsTrigger value="transactions">거래 내역 ({editedPartner.transactions.length})</TabsTrigger>
-              <TabsTrigger value="documents">문서 ({editedPartner.documents.length})</TabsTrigger>
+            <TabsList className="grid grid-cols-3 sm:grid-cols-6 w-full mb-4 bg-muted/60 p-0.5 rounded-md border border-border/60">
+              <TabsTrigger value="info" className="text-xs py-1.5">기본 정보</TabsTrigger>
+              <TabsTrigger value="facilities" className="text-xs py-1.5">시설 ({editedPartner.facilities?.length || 0})</TabsTrigger>
+              <TabsTrigger value="contacts" className="text-xs py-1.5">담당자 ({editedPartner.contacts.length})</TabsTrigger>
+              <TabsTrigger value="notes" className="text-xs py-1.5">특이사항 ({(editedPartner.notesHistory || []).length})</TabsTrigger>
+              <TabsTrigger value="transactions" className="text-xs py-1.5">거래 내역 ({editedPartner.transactions.length})</TabsTrigger>
+              <TabsTrigger value="documents" className="text-xs py-1.5">문서 ({editedPartner.documents.length})</TabsTrigger>
             </TabsList>
 
             {/* 기본 정보 탭 */}

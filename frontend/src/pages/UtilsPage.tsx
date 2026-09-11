@@ -14,7 +14,6 @@ import {
   Mail, 
   Calculator, 
   Hash,
-  Sparkles,
   ArrowRight,
   FileSpreadsheet,
   AlertTriangle,
@@ -413,81 +412,91 @@ export default function UtilsPage() {
     })
   }
 
-  // 각 도구별 카드 정보 구성
+  // 각 도구별 카드 정보 구성 (데스크탑 깔끔한 스타일)
   const tools = [
     {
       id: "biznum" as ModalType,
       title: "사업자번호 검증",
       description: "국세청 알고리즘 기반 사업자등록번호 형식과 체크섬 유효성을 진단합니다.",
       icon: Hash,
-      color: "bg-blue-50 text-blue-600 border-blue-100 dark:bg-blue-950/30 dark:text-blue-400 dark:border-blue-900/50"
+      badge: "유효성 검사"
     },
     {
       id: "vat" as ModalType,
-      title: "부가세/공급가 계산기",
-      description: "합계금액 입력 시 공급가액과 부가세를 자동으로 역산하거나, 공급가 기준 합계를 구합니다.",
+      title: "부가세 / 공급가 계산기",
+      description: "합계금액 입력 시 공급가액과 부가세를 자동으로 역산하거나, 공급가 기준 합계를 계산합니다.",
       icon: Calculator,
-      color: "bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-900/50"
+      badge: "세무 계산"
     },
     {
       id: "contacts" as ModalType,
-      title: "연락처/이메일 추출기",
-      description: "게시글이나 문서 내용 등 텍스트 뭉치에서 연락처와 이메일 정보를 한눈에 찾아냅니다.",
+      title: "연락처 / 이메일 추출기",
+      description: "문서나 본문 텍스트에서 전화번호 및 이메일 주소를 정규식으로 파싱하여 추출합니다.",
       icon: Mail,
-      color: "bg-violet-50 text-violet-600 border-violet-100 dark:bg-violet-950/30 dark:text-violet-400 dark:border-violet-900/50"
+      badge: "데이터 추출"
     },
     {
       id: "template" as ModalType,
       title: "템플릿 변수 추출",
-      description: "한글이나 워드 서식에 쓰인 중괄호 치환 기호 {{변수}}를 파싱하여 키값 리스트로 정리합니다.",
+      description: "한글 또는 워드 서식 파일의 중괄호 치환 기호 {{변수}}를 탐색하여 키 목록으로 정리합니다.",
       icon: FileText,
-      color: "bg-amber-50 text-amber-600 border-amber-100 dark:bg-amber-950/30 dark:text-amber-400 dark:border-amber-900/50"
+      badge: "서식 파싱"
     },
     {
       id: "invoice_check" as ModalType,
       title: "세금계산서 일괄 발행 검증",
-      description: "홈택스 세금계산서 일괄발행용 엑셀 파일을 분석하여 등록된 거래처 누락 여부 및 사업자번호/세액 등을 검증합니다.",
+      description: "홈택스 세금계산서 일괄발행용 엑셀 파일을 분석하여 등록 거래처 누락 및 사업자번호/세액을 검증합니다.",
       icon: FileSpreadsheet,
-      color: "bg-rose-50 text-rose-600 border-rose-100 dark:bg-rose-950/30 dark:text-rose-400 dark:border-rose-900/50"
+      badge: "엑셀 분석"
     }
   ]
 
   return (
-    <div className="space-y-8">
-      <div className="flex justify-between items-start">
+    <div className="space-y-4">
+      {/* Desktop Header */}
+      <div className="flex justify-between items-center pb-2.5 border-b border-border">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
-            편의 유틸리티 도구
-            <Sparkles className="h-6 w-6 text-yellow-500 animate-pulse" />
+          <h1 className="text-xl font-bold tracking-tight text-foreground">
+            업무 유틸리티 도구
           </h1>
-          <p className="text-muted-foreground mt-1">서류 작성 및 거래처 등록 등 일상 업무 효율을 대폭 향상해주는 도구 모음입니다.</p>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            세금계산서 일괄 검증, 사업자번호 유효성 진단, 부가세 역산 및 서식 변수 추출 도구 모음입니다.
+          </p>
         </div>
       </div>
 
       {/* 도구 선택 그리드 */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
         {tools.map((tool) => {
           const Icon = tool.icon
           return (
             <Card 
               key={tool.id} 
-              className="group cursor-pointer hover:shadow-md hover:border-gray-300 dark:hover:border-gray-700 transition-all duration-200"
+              className="cursor-pointer border border-border bg-card hover:bg-muted/30 hover:border-border/80 transition-colors shadow-none rounded-md"
               onClick={() => setActiveModal(tool.id)}
             >
-              <CardContent className="p-6 flex items-start gap-4">
-                <div className={`p-3 rounded-lg border ${tool.color} flex-shrink-0`}>
-                  <Icon className="h-6 w-6" />
-                </div>
-                <div className="space-y-1.5 flex-1">
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-semibold text-lg group-hover:text-blue-600 transition-colors">
-                      {tool.title}
-                    </h3>
-                    <ArrowRight className="h-4 w-4 text-gray-400 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
+              <CardContent className="p-3.5 flex flex-col justify-between h-full space-y-3">
+                <div className="flex items-start justify-between">
+                  <div className="p-2 rounded bg-muted/70 text-foreground border border-border/60 shrink-0">
+                    <Icon className="h-4 w-4" />
                   </div>
-                  <p className="text-sm text-muted-foreground leading-relaxed">
+                  <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-muted text-muted-foreground border border-border/50">
+                    {tool.badge}
+                  </span>
+                </div>
+
+                <div className="space-y-1">
+                  <h3 className="font-semibold text-sm text-foreground">
+                    {tool.title}
+                  </h3>
+                  <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
                     {tool.description}
                   </p>
+                </div>
+
+                <div className="pt-1 flex items-center justify-between text-xs text-muted-foreground border-t border-border/40">
+                  <span>도구 열기</span>
+                  <ArrowRight className="h-3.5 w-3.5" />
                 </div>
               </CardContent>
             </Card>

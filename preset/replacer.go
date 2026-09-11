@@ -6,6 +6,19 @@ import (
 	"strings"
 )
 
+func lookupReplacement(key, match string, replacements map[string]string) (string, bool) {
+	if val, ok := replacements[key]; ok {
+		return val, true
+	}
+	if val, ok := replacements[match]; ok {
+		return val, true
+	}
+	if val, ok := replacements["{{" + key + "}}"]; ok {
+		return val, true
+	}
+	return "", false
+}
+
 // ReplaceVariables 문서 내용에서 변수를 치환합니다
 func ReplaceVariables(content string, replacements map[string]string) (string, error) {
 	// {{변수명}} 형태의 정규식 패턴
@@ -14,7 +27,7 @@ func ReplaceVariables(content string, replacements map[string]string) (string, e
 	// 치환된 내용
 	result := re.ReplaceAllStringFunc(content, func(match string) string {
 		key := strings.Trim(match, "{}")
-		if value, ok := replacements[key]; ok {
+		if value, ok := lookupReplacement(key, match, replacements); ok {
 			// 특별한 처리: 한 자리 숫자인 경우 앞에 0 추가
 			if len(value) == 1 && isNumeric(value) {
 				return "0" + value
@@ -36,7 +49,7 @@ func ReplaceVariablesInText(text string, replacements map[string]string) (string
 	// 치환된 텍스트
 	result := re.ReplaceAllStringFunc(text, func(match string) string {
 		key := strings.Trim(match, "{}")
-		if value, ok := replacements[key]; ok {
+		if value, ok := lookupReplacement(key, match, replacements); ok {
 			// 특별한 처리: 한 자리 숫자인 경우 앞에 0 추가
 			if len(value) == 1 && isNumeric(value) {
 				return "0" + value

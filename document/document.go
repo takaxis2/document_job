@@ -144,6 +144,14 @@ func (d *Document) ExtractVariables(content string) ([]preset.VariableInfo, erro
 	return preset.ExtractVariables(content)
 }
 
+func (d *Document) ExtractVariablesFromFile(filePath string) ([]preset.VariableInfo, error) {
+	return preset.ExtractVariablesFromFile(filePath)
+}
+
+func (d *Document) ExtractVariablesFromFiles(filePaths []string) ([]preset.VariableInfo, error) {
+	return preset.ExtractVariablesFromFiles(filePaths)
+}
+
 func (d *Document) ValidateVariables(variables []string, replacements map[string]string) preset.ValidationResult {
 	return preset.ValidateVariables(variables, replacements)
 }

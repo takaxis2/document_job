@@ -23,6 +23,10 @@ export function DeletePresetItem(arg1:number):Promise<void>;
 
 export function ExtractVariables(arg1:string):Promise<Array<preset.VariableInfo>>;
 
+export function ExtractVariablesFromFile(arg1:string):Promise<Array<preset.VariableInfo>>;
+
+export function ExtractVariablesFromFiles(arg1:Array<string>):Promise<Array<preset.VariableInfo>>;
+
 export function GetAllDocuments():Promise<Array<models.DocumentModel>>;
 
 export function GetAllFacilities():Promise<Array<models.FacilityModel>>;

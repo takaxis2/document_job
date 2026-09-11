@@ -24,6 +24,8 @@ import {
   Plus,
   Save,
   ListFilter,
+  Sparkles,
+  Loader2,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import TemplateReplacementModal from "./template-replacement-modal"
@@ -33,7 +35,7 @@ import { useToast } from "@/hooks/use-toast"
 import VariableSelectionModal from "./variable-selection-modal"
 import { useFileStore } from "@/stores/fileStore"
 import type { UIPresetModel } from "@/stores/presetStore"
-import { ProcessSelectedFiles } from "../../wailsjs/go/document/Document"
+import { ProcessSelectedFiles, ExtractVariablesFromFiles } from "../../wailsjs/go/document/Document"
 import { LogPrint } from "../../wailsjs/runtime/runtime"
 
 // UI에서 치환 작업을 위해 사용하는 확장된 프리셋 아이템 타입
@@ -565,7 +567,78 @@ const StringReplacementPanel = ({
   const [isPresetManagementModalOpen, setIsPresetManagementModalOpen] = useState(false)
   const [lastAppliedPreset, setLastAppliedPreset] = useState<string | null>(null)
   const [editingPreset, setEditingPreset] = useState<UIPresetModel | null>(null)
+  const [isExtracting, setIsExtracting] = useState(false)
+  const [extractedCount, setExtractedCount] = useState<number | null>(null)
   const {folderPath} = useFileStore()
+
+  // 선택한 문서에서 변수 추출 핸들러
+  const handleExtractFromFiles = async () => {
+    const targetFiles = selectedFiles.filter((file) => {
+      if (file.fileType !== "file") return false
+      const ext = file.name.split(".").pop()?.toLowerCase() || ""
+      return ["docx", "xlsx", "doc", "xls"].includes(ext)
+    })
+
+    if (targetFiles.length === 0) {
+      toast({
+        title: "추출 대상 문서 없음",
+        description: "선택된 파일 중 워드(.docx) 또는 엑셀(.xlsx) 파일이 없습니다.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    setIsExtracting(true)
+    try {
+      const filePaths = targetFiles.map((f) => f.path)
+      const extractedVars = await ExtractVariablesFromFiles(filePaths)
+
+      if (!extractedVars || extractedVars.length === 0) {
+        toast({
+          title: "변수 없음",
+          description: "선택된 문서에서 {{변수}} 형식의 치환 키를 찾지 못했습니다.",
+        })
+        return
+      }
+
+      // 기존 입력값 보존 맵
+      const existingValueMap: Record<string, string> = {}
+      replacements.forEach((r) => {
+        if (r.key.trim() !== "") {
+          const cleanKey = r.key.replace(/[{}]/g, "").trim()
+          existingValueMap[cleanKey] = r.value
+          existingValueMap[`{{${cleanKey}}}`] = r.value
+        }
+      })
+
+      // 추출된 변수로 새 치환 목록 구성 (기존 값이 있으면 유지)
+      const updatedReplacements = extractedVars.map((v) => {
+        const rawKey = `{{${v.key}}}`
+        const preservedVal = existingValueMap[v.key] || existingValueMap[rawKey] || ""
+        return {
+          key: rawKey,
+          value: preservedVal,
+        }
+      })
+
+      setReplacements(updatedReplacements)
+      setExtractedCount(extractedVars.length)
+
+      toast({
+        title: "변수 추출 완료",
+        description: `${targetFiles.length}개 문서에서 ${extractedVars.length}개의 {{변수}}를 추출하여 반영했습니다.`,
+      })
+    } catch (err: any) {
+      console.error("문서 변수 추출 오류:", err)
+      toast({
+        title: "추출 오류",
+        description: `문서 변수 추출 중 오류가 발생했습니다: ${err.message || err}`,
+        variant: "destructive",
+      })
+    } finally {
+      setIsExtracting(false)
+    }
+  }
 
   // 치환 값 변경 핸들러
   const handleValueChange = (index: number, value: string) => {
@@ -768,20 +841,51 @@ const StringReplacementPanel = ({
 
   return (
     <div className="p-4 h-full overflow-auto">
-      <div className="justify-between items-center mb-4">
-        <h3 className="font-medium">문자열 치환</h3>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={() => setIsPresetModalOpen(true)}>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+        <div>
+          <h3 className="font-medium text-sm">문자열 치환</h3>
+          <p className="text-xs text-muted-foreground">선택된 문서의 변수를 치환합니다</p>
+        </div>
+        <div className="flex flex-wrap gap-1.5">
+          <Button
+            variant="default"
+            size="sm"
+            className="h-8 text-xs bg-blue-600 hover:bg-blue-700 text-white"
+            onClick={handleExtractFromFiles}
+            disabled={isExtracting}
+          >
+            {isExtracting ? (
+              <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
+            ) : (
+              <Sparkles className="h-3.5 w-3.5 mr-1.5 text-yellow-300" />
+            )}
+            변수 자동 추출
+          </Button>
+          <Button variant="outline" size="sm" className="h-8 text-xs" onClick={() => setIsPresetModalOpen(true)}>
             <ListFilter className="h-3 w-3 mr-1" /> 프리셋
           </Button>
-          <Button variant="outline" size="sm" onClick={handleAddReplacement}>
+          <Button variant="outline" size="sm" className="h-8 text-xs" onClick={handleAddReplacement}>
             <Plus className="h-3 w-3 mr-1" /> 항목 추가
           </Button>
-          <Button variant="outline" size="sm" onClick={() => setIsVariableModalOpen(true)}>
+          <Button variant="outline" size="sm" className="h-8 text-xs" onClick={() => setIsVariableModalOpen(true)}>
             <Plus className="h-3 w-3 mr-1" /> 변수 선택
           </Button>
         </div>
       </div>
+
+      {extractedCount !== null && (
+        <div className="mb-3 text-xs bg-emerald-50 text-emerald-800 border border-emerald-200 px-3 py-2 rounded-md flex items-center justify-between dark:bg-emerald-950/20 dark:border-emerald-900/50 dark:text-emerald-300">
+          <span>문서에서 추출된 변수 <strong>{extractedCount}개</strong>가 적용되었습니다.</span>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="h-5 text-[10px] px-1.5 text-emerald-700 hover:text-emerald-900"
+            onClick={() => setExtractedCount(null)}
+          >
+            닫기
+          </Button>
+        </div>
+      )}
 
       {lastAppliedPreset && (
         <div className="mb-3 text-xs bg-blue-50 text-blue-700 px-3 py-2 rounded-md dark:bg-blue-900/20 dark:text-blue-300">

@@ -1,8 +1,17 @@
 package preset
 
 import (
+	"archive/zip"
+	"bytes"
+	"fmt"
+	"io"
+	"os"
+	"path/filepath"
 	"regexp"
 	"strings"
+
+	"github.com/takaxis2/go-docx"
+	"github.com/xuri/excelize/v2"
 )
 
 // VariableInfo 변수 정보
@@ -46,6 +55,204 @@ func ExtractVariables(content string) ([]VariableInfo, error) {
 	}
 
 	// 맵을 슬라이스로 변환
+	var variables []VariableInfo
+	for _, info := range variableMap {
+		variables = append(variables, *info)
+	}
+
+	return variables, nil
+}
+
+var xmlTagRegex = regexp.MustCompile(`<[^>]+>`)
+
+func stripXMLTags(s string) string {
+	return xmlTagRegex.ReplaceAllString(s, "")
+}
+
+// ExtractVariablesFromDocx 워드(.docx) 파일에서 변수를 추출합니다
+func ExtractVariablesFromDocx(filePath string) ([]VariableInfo, error) {
+	docx.ChangeOpenCloseDelimiter("{{", "}}")
+
+	b, err := os.ReadFile(filePath)
+	if err != nil {
+		return nil, fmt.Errorf("docx 파일 읽기 오류: %w", err)
+	}
+
+	doc, err := docx.OpenBytes(b)
+	if err != nil {
+		return nil, fmt.Errorf("docx 파싱 오류: %w", err)
+	}
+	defer doc.Close()
+
+	variableMap := make(map[string]*VariableInfo)
+
+	// 1. go-docx의 GetPlaceHoldersList 시도
+	placeholders, err := doc.GetPlaceHoldersList()
+	if err == nil && len(placeholders) > 0 {
+		for _, ph := range placeholders {
+			cleanKey := strings.TrimSpace(strings.Trim(ph, "{}"))
+			if cleanKey == "" {
+				continue
+			}
+			if info, exists := variableMap[cleanKey]; exists {
+				info.Count++
+			} else {
+				variableMap[cleanKey] = &VariableInfo{
+					Key:         cleanKey,
+					Description: getVariableDescription(cleanKey),
+					Category:    getVariableCategory(cleanKey),
+					Count:       1,
+				}
+			}
+		}
+	}
+
+	// 2. 만약 placeholders에서 잡히지 않은 변수나 분할 run 보완을 위해 docx 내부 XML 스캔
+	re := regexp.MustCompile(`\{\{([^{}]+)\}\}`)
+	zipReader, zipErr := zip.NewReader(bytes.NewReader(b), int64(len(b)))
+	if zipErr == nil {
+		for _, file := range zipReader.File {
+			if strings.HasPrefix(file.Name, "word/") && strings.HasSuffix(file.Name, ".xml") {
+				rc, err := file.Open()
+				if err != nil {
+					continue
+				}
+				contentBytes, _ := io.ReadAll(rc)
+				rc.Close()
+
+				matches := re.FindAllStringSubmatch(string(contentBytes), -1)
+				for _, match := range matches {
+					if len(match) > 1 {
+						cleanKey := strings.TrimSpace(match[1])
+						if strings.Contains(cleanKey, "<") || strings.Contains(cleanKey, ">") {
+							cleanKey = stripXMLTags(cleanKey)
+						}
+						cleanKey = strings.TrimSpace(cleanKey)
+						if cleanKey == "" {
+							continue
+						}
+						// 이미 GetPlaceHoldersList에서 세었으면 중복 카운트하지 않음
+						if len(placeholders) == 0 {
+							if info, exists := variableMap[cleanKey]; exists {
+								info.Count++
+							} else {
+								variableMap[cleanKey] = &VariableInfo{
+									Key:         cleanKey,
+									Description: getVariableDescription(cleanKey),
+									Category:    getVariableCategory(cleanKey),
+									Count:       1,
+								}
+							}
+						} else {
+							// GetPlaceHoldersList에 없던 새로운 키만 추가
+							if _, exists := variableMap[cleanKey]; !exists {
+								variableMap[cleanKey] = &VariableInfo{
+									Key:         cleanKey,
+									Description: getVariableDescription(cleanKey),
+									Category:    getVariableCategory(cleanKey),
+									Count:       1,
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	var variables []VariableInfo
+	for _, info := range variableMap {
+		variables = append(variables, *info)
+	}
+
+	return variables, nil
+}
+
+// ExtractVariablesFromXlsx 엑셀(.xlsx) 파일에서 변수를 추출합니다
+func ExtractVariablesFromXlsx(filePath string) ([]VariableInfo, error) {
+	f, err := excelize.OpenFile(filePath)
+	if err != nil {
+		return nil, fmt.Errorf("excel 파일 열기 오류: %w", err)
+	}
+	defer f.Close()
+
+	re := regexp.MustCompile(`\{\{([^{}]+)\}\}`)
+	variableMap := make(map[string]*VariableInfo)
+
+	for _, sheetName := range f.GetSheetList() {
+		rows, err := f.GetRows(sheetName)
+		if err != nil {
+			continue
+		}
+		for _, row := range rows {
+			for _, cellValue := range row {
+				if !strings.Contains(cellValue, "{{") {
+					continue
+				}
+				matches := re.FindAllStringSubmatch(cellValue, -1)
+				for _, match := range matches {
+					if len(match) > 1 {
+						key := strings.TrimSpace(match[1])
+						if key == "" {
+							continue
+						}
+						if info, exists := variableMap[key]; exists {
+							info.Count++
+						} else {
+							variableMap[key] = &VariableInfo{
+								Key:         key,
+								Description: getVariableDescription(key),
+								Category:    getVariableCategory(key),
+								Count:       1,
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	var variables []VariableInfo
+	for _, info := range variableMap {
+		variables = append(variables, *info)
+	}
+
+	return variables, nil
+}
+
+// ExtractVariablesFromFile 파일 형식에 따라 적절한 추출기를 호출합니다
+func ExtractVariablesFromFile(filePath string) ([]VariableInfo, error) {
+	ext := strings.ToLower(filepath.Ext(filePath))
+	switch ext {
+	case ".docx", ".doc":
+		return ExtractVariablesFromDocx(filePath)
+	case ".xlsx", ".xls":
+		return ExtractVariablesFromXlsx(filePath)
+	default:
+		return nil, fmt.Errorf("지원하지 않는 파일 형식입니다: %s", ext)
+	}
+}
+
+// ExtractVariablesFromFiles 여러 파일에서 변수를 추출하여 병합합니다
+func ExtractVariablesFromFiles(filePaths []string) ([]VariableInfo, error) {
+	variableMap := make(map[string]*VariableInfo)
+
+	for _, path := range filePaths {
+		vars, err := ExtractVariablesFromFile(path)
+		if err != nil {
+			continue
+		}
+
+		for _, v := range vars {
+			if existing, exists := variableMap[v.Key]; exists {
+				existing.Count += v.Count
+			} else {
+				infoCopy := v
+				variableMap[v.Key] = &infoCopy
+			}
+		}
+	}
+
 	var variables []VariableInfo
 	for _, info := range variableMap {
 		variables = append(variables, *info)

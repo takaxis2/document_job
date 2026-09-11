@@ -38,6 +38,14 @@ export function ExtractVariables(arg1) {
   return window['go']['document']['Document']['ExtractVariables'](arg1);
 }
 
+export function ExtractVariablesFromFile(arg1) {
+  return window['go']['document']['Document']['ExtractVariablesFromFile'](arg1);
+}
+
+export function ExtractVariablesFromFiles(arg1) {
+  return window['go']['document']['Document']['ExtractVariablesFromFiles'](arg1);
+}
+
 export function GetAllDocuments() {
   return window['go']['document']['Document']['GetAllDocuments']();
 }

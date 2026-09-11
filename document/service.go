@@ -255,8 +255,10 @@ func processWordFile(filePath string, newPath string, replacements map[string]st
 	placeholderMap := docx.PlaceholderMap{}
 
 	fmt.Println("변수 치환 시작")
-	for repl := range replacements {
-		placeholderMap.Add(repl, replacements[repl])
+	for repl, val := range replacements {
+		cleanKey := strings.TrimSpace(strings.Trim(repl, "{}"))
+		placeholderMap.Add(cleanKey, val)
+		placeholderMap.Add(repl, val)
 	}
 
 	err = doc.ReplaceAll(placeholderMap)
@@ -365,10 +367,16 @@ func processFileName(file_path string, replacements map[string]string) (string, 
 	// replacements에서 연도와 월 가져오기
 	year, exists := replacements["WORK_YEAR"]
 	if !exists {
+		year, exists = replacements["{{WORK_YEAR}}"]
+	}
+	if !exists {
 		return "", fmt.Errorf("WORK_YEAR가 replacements에 없습니다")
 	}
 
 	month, exists := replacements["WORK_MONTH"]
+	if !exists {
+		month, exists = replacements["{{WORK_MONTH}}"]
+	}
 	if !exists {
 		return "", fmt.Errorf("WORK_MONTH가 replacements에 없습니다")
 	}
