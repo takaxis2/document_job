@@ -384,3 +384,24 @@ func processFileName(file_path string, replacements map[string]string) (string, 
 
 	return newPath, nil
 }
+
+func selectExcelFile(ctx context.Context) (string, error) {
+	result, err := runtime.OpenFileDialog(ctx, runtime.OpenDialogOptions{
+		Title: "세금계산서 엑셀 파일 선택",
+		Filters: []runtime.FileFilter{
+			{
+				DisplayName: "Excel Files (*.xlsx, *.xls)",
+				Pattern:     "*.xlsx;*.xls",
+			},
+			{
+				DisplayName: "All Files (*.*)",
+				Pattern:     "*.*",
+			},
+		},
+	})
+	if err != nil {
+		return "", err
+	}
+	return result, nil
+}
+

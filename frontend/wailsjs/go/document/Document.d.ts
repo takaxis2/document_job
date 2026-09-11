@@ -7,11 +7,15 @@ import {context} from '../models';
 
 export function CreateDocument(arg1:models.DocumentModel):Promise<void>;
 
+export function CreateInvoiceTemplate(arg1:models.InvoiceTemplateModel):Promise<models.InvoiceTemplateModel>;
+
 export function CreatePreset(arg1:models.PresetModel):Promise<void>;
 
 export function CreatePresetItem(arg1:models.PresetItem):Promise<void>;
 
 export function DeleteDocument(arg1:number):Promise<void>;
+
+export function DeleteInvoiceTemplate(arg1:number):Promise<void>;
 
 export function DeletePreset(arg1:number):Promise<void>;
 
@@ -21,11 +25,17 @@ export function ExtractVariables(arg1:string):Promise<Array<preset.VariableInfo>
 
 export function GetAllDocuments():Promise<Array<models.DocumentModel>>;
 
+export function GetAllFacilities():Promise<Array<models.FacilityModel>>;
+
+export function GetAllInvoiceTemplates():Promise<Array<models.InvoiceTemplateModel>>;
+
 export function GetAllPresets():Promise<Array<models.PresetModel>>;
 
 export function GetDocumentByID(arg1:number):Promise<models.DocumentModel>;
 
 export function GetFolderTree(arg1:string):Promise<Array<document.FileSystemItem>>;
+
+export function GetInvoiceTargets():Promise<Array<document.InvoiceTarget>>;
 
 export function GetPresetByID(arg1:number):Promise<models.PresetModel>;
 
@@ -39,12 +49,18 @@ export function ReplaceVariables(arg1:string,arg2:Record<string, string>):Promis
 
 export function SelectDirectory():Promise<string>;
 
+export function SelectExcelFile():Promise<string>;
+
 export function Startup(arg1:context.Context):Promise<void>;
 
 export function UpdateDocument(arg1:models.DocumentModel):Promise<void>;
 
+export function UpdateInvoiceTemplate(arg1:models.InvoiceTemplateModel):Promise<void>;
+
 export function UpdatePreset(arg1:models.PresetModel):Promise<void>;
 
 export function UpdatePresetItem(arg1:models.PresetItem):Promise<void>;
+
+export function ValidateInvoiceExcel(arg1:string):Promise<document.ExcelValidationReport>;
 
 export function ValidateVariables(arg1:Array<string>,arg2:Record<string, string>):Promise<preset.ValidationResult>;

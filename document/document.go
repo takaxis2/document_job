@@ -32,6 +32,41 @@ func (d *Document) SelectDirectory() (string, error) {
 	return selectDirectory(d.ctx)
 }
 
+// 엑셀 파일 선택 다이얼로그 함수
+func (d *Document) SelectExcelFile() (string, error) {
+	log.Println("[Go Backend] SelectExcelFile called")
+	path, err := selectExcelFile(d.ctx)
+	if err != nil {
+		log.Printf("[Go Backend] SelectExcelFile error: %v\n", err)
+	} else {
+		log.Printf("[Go Backend] SelectExcelFile path: %s\n", path)
+	}
+	return path, err
+}
+
+func (d *Document) GetAllFacilities() ([]*models.FacilityModel, error) {
+	return db.GetAllFacilities()
+}
+
+func (d *Document) CreateInvoiceTemplate(t models.InvoiceTemplateModel) (models.InvoiceTemplateModel, error) {
+	err := db.CreateInvoiceTemplate(&t)
+	return t, err
+}
+
+func (d *Document) GetAllInvoiceTemplates() ([]*models.InvoiceTemplateModel, error) {
+	return db.GetAllInvoiceTemplates()
+}
+
+func (d *Document) UpdateInvoiceTemplate(t models.InvoiceTemplateModel) error {
+	return db.UpdateInvoiceTemplate(&t)
+}
+
+func (d *Document) DeleteInvoiceTemplate(id int64) error {
+	return db.DeleteInvoiceTemplate(id)
+}
+
+
+
 // 폴더 트리 가져오기 함수
 func (d *Document) GetFolderTree(path string) ([]FileSystemItem, error) {
 	return getFolderTree(d.ctx, path)

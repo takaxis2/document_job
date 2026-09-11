@@ -1,94 +1,26 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useNavigate } from "react-router"
 import { Button } from "../components/ui/button"
 import { Card, CardContent } from "../components/ui/card"
 import { Badge } from "../components/ui/badge"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../components/ui/table"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select"
 import { Plus, Download } from "lucide-react"
-import PartnerDetailModal, { type Partner } from "../components/partner-detail-modal.tsx"
+import { usePartnerStore } from "../stores/partnerStore"
+import type { Partner } from "../stores/partnerStore"
 import { useToast } from "../hooks/use-toast"
 
-// 예시 거래처 데이터
-const samplePartners: Partner[] = [
-  {
-    id: "1",
-    name: "한국전자",
-    businessNumber: "123-45-67890",
-    representative: "김영수",
-    contactPerson: "박지민",
-    phone: "010-1234-5678",
-    email: "contact@koreaelectronics.com",
-    address: "서울시 서초구 서초대로 789",
-    status: "active",
-    industry: "manufacturing",
-    lastTransaction: "2025-05-03",
-    notes: "주요 전자제품 공급업체, 분기별 계약 갱신",
-    createdAt: "2024-01-15",
-    documents: [
-      {
-        id: "doc-1",
-        name: "한국전자_공급계약서.pdf",
-        type: "계약서",
-        createdAt: "2025-05-03",
-        size: "2.4 MB",
-      },
-      {
-        id: "doc-2",
-        name: "한국전자_5월납품견적.xlsx",
-        type: "견적서",
-        createdAt: "2025-05-01",
-        size: "1.2 MB",
-      },
-    ],
-    contacts: [
-      {
-        id: "contact-1",
-        name: "박지민",
-        position: "과장",
-        department: "구매팀",
-        phone: "010-1234-5678",
-        email: "jimin.park@koreaelectronics.com",
-        isPrimary: true,
-      },
-      {
-        id: "contact-2",
-        name: "이수진",
-        position: "대리",
-        department: "재무팀",
-        phone: "010-2345-6789",
-        email: "sujin.lee@koreaelectronics.com",
-        isPrimary: false,
-      },
-    ],
-    transactions: [
-      {
-        id: "trans-1",
-        date: "2025-05-03",
-        type: "계약 갱신",
-        amount: 50000000,
-        description: "2분기 공급 계약",
-        status: "completed",
-      },
-      {
-        id: "trans-2",
-        date: "2025-04-15",
-        type: "납품",
-        amount: 12500000,
-        description: "4월 정기 납품",
-        status: "completed",
-      },
-    ],
-  },
-  // ... 다른 거래처 데이터들
-]
-
 export default function PartnersPage() {
+  const navigate = useNavigate()
   const { toast } = useToast()
-  const [partners, setPartners] = useState<Partner[]>(samplePartners)
+  
+  const { partners, addPartner, loadPartnersFromDb } = usePartnerStore()
   const [statusFilter, setStatusFilter] = useState("all")
   const [industryFilter, setIndustryFilter] = useState("all")
-  const [selectedPartner, setSelectedPartner] = useState<Partner | null>(null)
-  const [isPartnerDetailOpen, setIsPartnerDetailOpen] = useState(false)
+
+  useEffect(() => {
+    loadPartnersFromDb()
+  }, [])
 
   // 거래처 필터링
   const filteredPartners = partners.filter((partner) => {
@@ -97,33 +29,47 @@ export default function PartnersPage() {
     return matchesStatus && matchesIndustry
   })
 
-  // 거래처 상세 정보 열기
+  // 거래처 상세 정보 페이지로 이동
   const handleOpenPartnerDetail = (partner: Partner) => {
-    setSelectedPartner(partner)
-    setIsPartnerDetailOpen(true)
+    navigate(`/partners/${partner.id}`)
   }
 
-  // 거래처 정보 저장
-  const handleSavePartner = (updatedPartner: Partner) => {
-    setPartners(partners.map((partner) => (partner.id === updatedPartner.id ? updatedPartner : partner)))
-    setSelectedPartner(updatedPartner)
-
-    toast({
-      title: "거래처 정보 저장됨",
-      description: `${updatedPartner.name} 거래처 정보가 업데이트되었습니다.`,
-    })
-  }
-
-  // 거래처 삭제
-  const handleDeletePartner = (partnerId: string) => {
-    setPartners(partners.filter((partner) => partner.id !== partnerId))
-    setIsPartnerDetailOpen(false)
-    setSelectedPartner(null)
-
-    toast({
-      title: "거래처 삭제됨",
-      description: "거래처가 삭제되었습니다.",
-    })
+  // 신규 거래처 추가 핸들러
+  const handleCreatePartner = async () => {
+    const newPartner: Partner = {
+      id: "0",
+      name: "신규 거래처",
+      businessNumber: "000-00-00000",
+      representative: "",
+      contactPerson: "",
+      phone: "",
+      email: "",
+      address: "",
+      status: "pending",
+      industry: "other",
+      lastTransaction: "-",
+      notes: "새로 등록된 거래처입니다.",
+      createdAt: new Date().toISOString().split("T")[0],
+      documents: [],
+      contacts: [],
+      transactions: [],
+      facilities: []
+    }
+    
+    try {
+      const realId = await addPartner(newPartner)
+      navigate(`/partners/${realId}`)
+      toast({
+        title: "신규 거래처 임시 등록",
+        description: "상세 정보 페이지에서 거래처 정보를 입력하고 저장해주세요.",
+      })
+    } catch (err) {
+      toast({
+        title: "등록 실패",
+        description: "신규 거래처 등록 중 오류가 발생했습니다.",
+        variant: "destructive"
+      })
+    }
   }
 
   return (
@@ -134,7 +80,7 @@ export default function PartnersPage() {
           <p className="text-muted-foreground">거래처 정보를 관리하고 상세 정보를 확인하세요.</p>
         </div>
         <div className="flex gap-2">
-          <Button>
+          <Button onClick={handleCreatePartner}>
             <Plus className="mr-2 h-4 w-4" /> 신규 거래처
           </Button>
           <Button variant="outline">
@@ -196,16 +142,16 @@ export default function PartnersPage() {
                 <TableRow key={partner.id}>
                   <TableCell className="font-medium">{partner.name}</TableCell>
                   <TableCell>{partner.businessNumber}</TableCell>
-                  <TableCell>{partner.contactPerson}</TableCell>
-                  <TableCell>{partner.phone}</TableCell>
+                  <TableCell>{partner.contactPerson || "-"}</TableCell>
+                  <TableCell>{partner.phone || "-"}</TableCell>
                   <TableCell>
                     <Badge
                       className={
                         partner.status === "active"
-                          ? "bg-green-50 text-green-700"
+                          ? "bg-green-50 text-green-700 border-green-200"
                           : partner.status === "inactive"
-                            ? "bg-red-50 text-red-700"
-                            : "bg-yellow-50 text-yellow-700"
+                            ? "bg-red-50 text-red-700 border-red-200"
+                            : "bg-yellow-50 text-yellow-700 border-yellow-200"
                       }
                     >
                       {partner.status === "active" ? "거래중" : partner.status === "inactive" ? "거래중단" : "검토중"}
@@ -214,7 +160,7 @@ export default function PartnersPage() {
                   <TableCell>{partner.lastTransaction}</TableCell>
                   <TableCell>
                     <Button variant="ghost" size="sm" onClick={() => handleOpenPartnerDetail(partner)}>
-                      상세
+                      상세 정보
                     </Button>
                   </TableCell>
                 </TableRow>
@@ -231,15 +177,6 @@ export default function PartnersPage() {
           </Table>
         </CardContent>
       </Card>
-
-      {/* 거래처 상세 모달 */}
-      <PartnerDetailModal
-        isOpen={isPartnerDetailOpen}
-        onClose={() => setIsPartnerDetailOpen(false)}
-        partner={selectedPartner}
-        onSave={handleSavePartner}
-        onDelete={handleDeletePartner}
-      />
     </div>
   )
 }

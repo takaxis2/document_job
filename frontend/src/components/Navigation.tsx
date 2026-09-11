@@ -1,7 +1,7 @@
 import { Link, useLocation } from "react-router"
 import { Button } from "./ui/button"
 // import { Input } from "./ui/input"
-import { BarChart3, Users, FileText } from "lucide-react"
+import { BarChart3, Users, FileText, Settings, Wrench } from "lucide-react"
 import { cn } from "../lib/utils"
 
 const navigationItems = [
@@ -19,6 +19,16 @@ const navigationItems = [
     name: "문서",
     href: "/documents",
     icon: FileText,
+  },
+  {
+    name: "유틸",
+    href: "/utils",
+    icon: Wrench,
+  },
+  {
+    name: "설정",
+    href: "/settings",
+    icon: Settings,
   },
 ]
 

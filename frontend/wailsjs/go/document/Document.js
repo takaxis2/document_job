@@ -6,6 +6,10 @@ export function CreateDocument(arg1) {
   return window['go']['document']['Document']['CreateDocument'](arg1);
 }
 
+export function CreateInvoiceTemplate(arg1) {
+  return window['go']['document']['Document']['CreateInvoiceTemplate'](arg1);
+}
+
 export function CreatePreset(arg1) {
   return window['go']['document']['Document']['CreatePreset'](arg1);
 }
@@ -16,6 +20,10 @@ export function CreatePresetItem(arg1) {
 
 export function DeleteDocument(arg1) {
   return window['go']['document']['Document']['DeleteDocument'](arg1);
+}
+
+export function DeleteInvoiceTemplate(arg1) {
+  return window['go']['document']['Document']['DeleteInvoiceTemplate'](arg1);
 }
 
 export function DeletePreset(arg1) {
@@ -34,6 +42,14 @@ export function GetAllDocuments() {
   return window['go']['document']['Document']['GetAllDocuments']();
 }
 
+export function GetAllFacilities() {
+  return window['go']['document']['Document']['GetAllFacilities']();
+}
+
+export function GetAllInvoiceTemplates() {
+  return window['go']['document']['Document']['GetAllInvoiceTemplates']();
+}
+
 export function GetAllPresets() {
   return window['go']['document']['Document']['GetAllPresets']();
 }
@@ -44,6 +60,10 @@ export function GetDocumentByID(arg1) {
 
 export function GetFolderTree(arg1) {
   return window['go']['document']['Document']['GetFolderTree'](arg1);
+}
+
+export function GetInvoiceTargets() {
+  return window['go']['document']['Document']['GetInvoiceTargets']();
 }
 
 export function GetPresetByID(arg1) {
@@ -70,6 +90,10 @@ export function SelectDirectory() {
   return window['go']['document']['Document']['SelectDirectory']();
 }
 
+export function SelectExcelFile() {
+  return window['go']['document']['Document']['SelectExcelFile']();
+}
+
 export function Startup(arg1) {
   return window['go']['document']['Document']['Startup'](arg1);
 }
@@ -78,12 +102,20 @@ export function UpdateDocument(arg1) {
   return window['go']['document']['Document']['UpdateDocument'](arg1);
 }
 
+export function UpdateInvoiceTemplate(arg1) {
+  return window['go']['document']['Document']['UpdateInvoiceTemplate'](arg1);
+}
+
 export function UpdatePreset(arg1) {
   return window['go']['document']['Document']['UpdatePreset'](arg1);
 }
 
 export function UpdatePresetItem(arg1) {
   return window['go']['document']['Document']['UpdatePresetItem'](arg1);
+}
+
+export function ValidateInvoiceExcel(arg1) {
+  return window['go']['document']['Document']['ValidateInvoiceExcel'](arg1);
 }
 
 export function ValidateVariables(arg1, arg2) {
